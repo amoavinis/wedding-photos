@@ -5,11 +5,10 @@
 .header {
   width: 100vw;
   background-color: blue;
-  height: 15vh;
+  height: 15%;
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 0 20px;
 }
 
 .title-box {
@@ -24,18 +23,35 @@
   color: white;
 }
 
-.body {
-  height: 85vh;
+.open-modal-box {
+  width: 15%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding: 20px;
+}
+
+.open-modal-button {
+  background-color: purple;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  width: calc(100% - 40px);
+  height: calc(100% - 40px);
+}
+
+.body {
+  height: calc(85% - 20px);
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  padding: 10px;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 10px;
+.full-media {
+  height: 100%;
+  width: auto;
 }
 
 img,
@@ -43,7 +59,7 @@ img,
   width: 100%;
   height: auto;
   border-radius: 10px;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 /* Modal styles */
@@ -63,9 +79,11 @@ img,
   background: white;
   padding: 20px;
   border-radius: 10px;
-  width: 90%;
-  max-width: 400px;
+  width: 80%;
+  height: 80%;
   text-align: center;
+  display: flex;
+  flex-direction: column;
 }
 
 .file-select-btn,
@@ -84,6 +102,12 @@ img,
   color: white;
 }
 
+.button-row {
+  display: flex;
+  flex-direction: row;
+  gap: 20%;
+}
+
 .confirm-btn {
   background-color: green;
   color: white;
@@ -99,12 +123,25 @@ img,
   flex-wrap: wrap;
   gap: 10px;
   margin-top: 10px;
+  flex: 1;
+  overflow-y: scroll;
 }
 
 .preview-item {
   position: relative;
-  width: 80px;
-  height: 80px;
-  display: flex;
-  justify-content: center;
+  width: calc(20% - 10px);
+  height: auto;
+}
+
+.preview-img {
+
+}
+
+.remove-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 40px;
+  width: 40px;
+  border-radius: 20px;
 }
