@@ -1,45 +1,31 @@
 import { useState, useEffect } from "react";
 import "./App.css";
+import UploadModal from "./components/UploadModal";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlay } from "@fortawesome/free-solid-svg-icons";
+import ViewSelectedMedia from "./components/ViewSelectedMedia";
+import UserSelector from "./components/UserSelector";
 
 export default function EventMediaApp() {
   const [mediaList, setMediaList] = useState([]);
+  const [filteredMediaList, setFilteredMediaList] = useState([]);
+  const [username, setUsername] = useState("");
   const [selectedMedia, setSelectedMedia] = useState(null);
-  const [selectedFiles, setSelectedFiles] = useState([]);
+
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const savedMedia = []; //JSON.parse(localStorage.getItem("mediaList")) || [];
     setMediaList(savedMedia);
+    setFilteredMediaList(savedMedia);
   }, []);
 
-  const openFileDialog = () => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*,video/*";
-    input.multiple = true;
-    input.onchange = (event) => {
-      const files = Array.from(event.target.files);
-      setSelectedFiles([...selectedFiles, ...files]);
-    };
-    input.click();
-  };
-
-  const removeFile = (index) => {
-    setSelectedFiles(selectedFiles.filter((_, i) => i !== index));
-  };
-
-  const uploadFiles = () => {
-    console.log(selectedFiles[0])
-    const urls = selectedFiles.map((file) => ({
-      url: URL.createObjectURL(file),
-      type: file.type,
-    }));
+  function onUpload(urls) {
     const updatedMediaList = [...mediaList, ...urls];
     setMediaList(updatedMediaList);
+    filterMediaList(updatedMediaList, username);
     localStorage.setItem("mediaList", JSON.stringify(updatedMediaList));
-    setSelectedFiles([]);
-    setShowModal(false);
-  };
+  }
 
   const openMediaModal = (media) => {
     setSelectedMedia(media);
@@ -58,6 +44,18 @@ export default function EventMediaApp() {
     document.body.removeChild(a);
   };
 
+  function filterMediaList(media, username) {
+    let filtered = username ? media.filter(
+      (m) => m.username.startsWith(username)
+    ) : media;
+    setFilteredMediaList(filtered);
+  }
+
+  function onFilterChange(value) {
+    setUsername(value);
+    filterMediaList(mediaList, value);
+  }
+
   return (
     <div className="h-100">
       <div className="header">
@@ -73,8 +71,11 @@ export default function EventMediaApp() {
           </button>
         </div>
       </div>
+      <div className="user-filter">
+        <UserSelector updateFn={(x) => onFilterChange(x)} />
+      </div>
       <div className="body">
-        {mediaList.map((media, index) => (
+        {filteredMediaList.map((media, index) => (
           <div
             key={index}
             onClick={() => openMediaModal(media)}
@@ -82,97 +83,35 @@ export default function EventMediaApp() {
             style={{ cursor: "pointer" }}
           >
             {media.type.startsWith("image") ? (
-              <img
-                src={media.url}
-                alt="Uploaded Media"
-                className="preview-img"
-              />
+              <img src={media.url} alt="Uploaded Media" />
             ) : (
-              <video width="100%" controls="controls" preload="metadata">
-                <source
-                  src="https://www.w3schools.com/html/mov_bbb.mp4#t=0.1"
-                  type="video/mp4"
-                ></source>
-              </video>
+              <div className="video-player-play-container">
+                <video src={media.url} width="100%"></video>
+                <div className="video-player-play-circle">
+                  <FontAwesomeIcon
+                    icon={faPlay}
+                    style={{ color: "white", fontSize: "40px" }}
+                  />
+                </div>
+              </div>
             )}
           </div>
         ))}
       </div>
 
       {showModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <div>
-              <h2>Select photos to upload</h2>
-              <button onClick={openFileDialog} className="file-select-btn">
-                Choose Files
-              </button>
-            </div>
-            <div className="preview-container">
-              {selectedFiles.map((file, index) => (
-                <div key={index} className="preview-item">
-                  {file.type.startsWith("video") ? (
-                    <video width="100%" controls="controls" preload="metadata">
-                      <source
-                        src="https://www.w3schools.com/html/mov_bbb.mp4#t=0.1"
-                        type="video/mp4"
-                      ></source>
-                    </video>
-                  ) : (
-                    <img
-                      src={URL.createObjectURL(file)}
-                      alt="Preview"
-                      className="preview-img"
-                    />
-                  )}
-                  <button
-                    className="remove-btn"
-                    onClick={() => removeFile(index)}
-                  >
-                    X
-                  </button>
-                </div>
-              ))}
-            </div>
-            <div className="button-row">
-              <button onClick={() => setShowModal(false)} className="close-btn">
-                Close
-              </button>
-              <button onClick={uploadFiles} className="confirm-btn">
-                Upload
-              </button>
-            </div>
-          </div>
-        </div>
+        <UploadModal
+          uploadFn={onUpload}
+          closeModalFn={() => setShowModal(false)}
+        />
       )}
 
       {selectedMedia && (
-        <div className="modal" onClick={closeMediaModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            {selectedMedia.type.startsWith("image") ? (
-              <img
-                src={selectedMedia.url}
-                alt="Full View"
-                className="full-media"
-              />
-            ) : (
-              <video controls className="full-media">
-                <source src={selectedMedia.url} type={selectedMedia.type} />
-              </video>
-            )}
-            <div className="button-row">
-              <button onClick={closeMediaModal} className="close-btn">
-                Close
-              </button>
-              <button
-                className="confirm-btn"
-                onClick={() => downloadMedia(selectedMedia.url)}
-              >
-                Download
-              </button>
-            </div>
-          </div>
-        </div>
+        <ViewSelectedMedia
+          selectedMedia={selectedMedia}
+          closeModalFn={closeMediaModal}
+          downloadFn={(url) => downloadMedia(url)}
+        />
       )}
     </div>
   );
