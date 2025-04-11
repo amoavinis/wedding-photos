@@ -1,10 +1,11 @@
 import "../App.css";
+import { downloadWithCloudFunction } from "../services/firebase";
 
-export default function ViewSelectedMedia({
-  selectedMedia,
-  closeModalFn,
-  downloadFn,
-}) {
+export default function ViewSelectedMedia({ selectedMedia, closeModalFn }) {
+  async function downloadMedia(file) {
+    await downloadWithCloudFunction(file);
+  }
+
   return (
     <div className="modal" onClick={closeModalFn}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -21,7 +22,7 @@ export default function ViewSelectedMedia({
           </button>
           <button
             className="confirm-btn"
-            onClick={() => downloadFn(selectedMedia.url)}
+            onClick={() => downloadMedia(selectedMedia)}
           >
             Download
           </button>

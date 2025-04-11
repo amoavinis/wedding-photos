@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlay } from "@fortawesome/free-solid-svg-icons";
 import ViewSelectedMedia from "./components/ViewSelectedMedia";
 import UserSelector from "./components/UserSelector";
+import { fetchPhotos } from "./services/firebase";
 
 export default function EventMediaApp() {
   const [mediaList, setMediaList] = useState([]);
@@ -15,39 +16,39 @@ export default function EventMediaApp() {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    const savedMedia = []; //JSON.parse(localStorage.getItem("mediaList")) || [];
-    setMediaList(savedMedia);
-    setFilteredMediaList(savedMedia);
+    async function loadPhotos(snapshot) {
+      let mediaData = await Promise.all(
+        snapshot.docs.map(async (doc) => ({
+          ...doc.data(),
+        }))
+      );
+
+      setMediaList(mediaData);
+      filterMediaList(mediaData, "");
+    }
+
+    const unsubscribe = fetchPhotos(loadPhotos);
+    return () => unsubscribe();
   }, []);
 
-  function onUpload(urls) {
-    const updatedMediaList = [...mediaList, ...urls];
+  async function onUpload(files) {
+    const updatedMediaList = [...mediaList, ...files];
     setMediaList(updatedMediaList);
     filterMediaList(updatedMediaList, username);
-    localStorage.setItem("mediaList", JSON.stringify(updatedMediaList));
   }
 
   const openMediaModal = (media) => {
-    setSelectedMedia(media);
+    setSelectedMedia({ ...media, url: media.downloadURL, downloadURL: null });
   };
 
   const closeMediaModal = () => {
     setSelectedMedia(null);
   };
 
-  const downloadMedia = (url) => {
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "download";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
-
   function filterMediaList(media, username) {
-    let filtered = username ? media.filter(
-      (m) => m.username.startsWith(username)
-    ) : media;
+    let filtered = username
+      ? media.filter((m) => m.username.startsWith(username))
+      : media;
     setFilteredMediaList(filtered);
   }
 
@@ -83,10 +84,10 @@ export default function EventMediaApp() {
             style={{ cursor: "pointer" }}
           >
             {media.type.startsWith("image") ? (
-              <img src={media.url} alt="Uploaded Media" />
+              <img src={media.preview} alt="Uploaded Media" />
             ) : (
               <div className="video-player-play-container">
-                <video src={media.url} width="100%"></video>
+                <img src={media.preview} alt="Uploaded Media" />
                 <div className="video-player-play-circle">
                   <FontAwesomeIcon
                     icon={faPlay}
@@ -110,7 +111,6 @@ export default function EventMediaApp() {
         <ViewSelectedMedia
           selectedMedia={selectedMedia}
           closeModalFn={closeMediaModal}
-          downloadFn={(url) => downloadMedia(url)}
         />
       )}
     </div>

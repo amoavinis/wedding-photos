@@ -1,11 +1,14 @@
 import { useState } from "react";
 import "../App.css";
+import { uploadMediaBatch } from "../services/firebase";
 
 export default function UploadModal({ uploadFn, closeModalFn }) {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [username, setUsername] = useState("");
+  const [progress, setProgress] = useState(0);
+  const [loading, setLoading] = useState(false);
 
-  const openFileDialog = () => {
+  function openFileDialog() {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*,video/*";
@@ -15,29 +18,40 @@ export default function UploadModal({ uploadFn, closeModalFn }) {
       setSelectedFiles([...selectedFiles, ...files]);
     };
     input.click();
-  };
+  }
 
-  const removeFile = (index) => {
+  function removeFile(index) {
     setSelectedFiles(selectedFiles.filter((_, i) => i !== index));
-  };
+  }
 
-  const uploadFiles = () => {
-    const urls = selectedFiles.map((file) => ({
-      url: URL.createObjectURL(file),
-      type: file.type,
-      username: username
-    }));
-    uploadFn(urls);
+  async function uploadFiles() {
+    setLoading(true);
+    let toEmit = await uploadMediaBatch(
+      selectedFiles,
+      username,
+      updateLoadingBar
+    );
+
+    uploadFn(toEmit);
     setSelectedFiles([]);
+    setLoading(false);
     closeModalFn();
-  };
+  }
+
+  function updateLoadingBar(value) {
+    setProgress(value);
+  }
 
   return (
     <div className="modal">
       <div className="modal-content">
         <div>
           <h2>Select photos to upload</h2>
-          <button onClick={openFileDialog} className="file-select-btn">
+          <button
+            onClick={openFileDialog}
+            className={loading ? "file-select-btn disabled" : "file-select-btn"}
+            disabled={loading}
+          >
             Choose Files
           </button>
         </div>
@@ -58,9 +72,14 @@ export default function UploadModal({ uploadFn, closeModalFn }) {
                   className="preview-img"
                 />
               )}
-              <button className="remove-btn" onClick={() => removeFile(index)}>
-                X
-              </button>
+              {!loading && (
+                <button
+                  className="remove-btn"
+                  onClick={() => removeFile(index)}
+                >
+                  X
+                </button>
+              )}
             </div>
           ))}
         </div>
@@ -83,19 +102,37 @@ export default function UploadModal({ uploadFn, closeModalFn }) {
               borderRadius: 10,
               borderWidth: 1,
             }}
+            readOnly={loading}
             placeholder="Όνομα"
             onKeyUp={($event) => setUsername($event.target.value)}
           />
         </div>
+        {progress > 0 && (
+          <div className="loading-container">
+            <div
+              className="loading-bar"
+              style={{
+                width: `${progress}%`,
+                backgroundColor: "green",
+              }}
+            />
+            <div className="loading-text">{Math.round(progress)}%</div>
+          </div>
+        )}
+
         <div className="button-row">
-          <button onClick={() => closeModalFn()} className="close-btn">
+          <button
+            onClick={() => closeModalFn()}
+            className={loading ? "close-btn disabled" : "close-btn"}
+            disabled={loading}
+          >
             Close
           </button>
           <button
             onClick={uploadFiles}
-            disabled={selectedFiles.length === 0 || !username}
+            disabled={selectedFiles.length === 0 || !username || loading}
             className={
-              selectedFiles.length === 0 || !username
+              selectedFiles.length === 0 || !username || loading
                 ? "confirm-btn disabled"
                 : "confirm-btn"
             }
