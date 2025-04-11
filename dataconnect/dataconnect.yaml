@@ -1,0 +1,12 @@
+specVersion: "v1"
+serviceId: "wedding-photos"
+location: "europe-southwest1"
+schema:
+  source: "./schema"
+  datasource:
+    postgresql:
+      database: "fdcdb"
+      cloudSql:
+        instanceId: "wedding-photos-fdc"
+      # schemaValidation: "COMPATIBLE"
+connectorDirs: ["./connector"]
