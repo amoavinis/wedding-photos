@@ -226,3 +226,17 @@ export async function downloadWithCloudFunction(mediaItem) {
     window.open(mediaItem.url, "_blank");
   }
 }
+
+export async function uploadUser(username) {
+  await authenticate();
+
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  if (!user) {
+    throw new Error("User must be logged in to upload user info");
+  }
+
+  const docRef = await addDoc(collection(db, "users"), {name: username});
+  return docRef;
+}
