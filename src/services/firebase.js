@@ -34,6 +34,34 @@ export function fetchPhotos(callback) {
   });
 }
 
+export async function uploadUser(username) {
+  await authenticate();
+
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  if (!user) {
+    throw new Error("User must be logged in to upload user info");
+  }
+
+  const docRef = await addDoc(collection(db, "users"), {name: username});
+  return docRef;
+}
+
+export async function uploadWish(wish, userId) {
+  await authenticate();
+
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  if (!user) {
+    throw new Error("User must be logged in to upload wish");
+  }
+
+  const docRef = await addDoc(collection(db, "messages"), {message: wish, userId: userId});
+  return docRef;
+}
+
 async function compressImage(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -112,7 +140,7 @@ async function extractFirstFrame(videoFile) {
   });
 }
 
-export async function uploadMediaBatch(files, username, progressCb) {
+export async function uploadMediaBatch(files, userId, username, progressCb) {
   await authenticate();
 
   const auth = getAuth();
@@ -174,6 +202,7 @@ export async function uploadMediaBatch(files, username, progressCb) {
               filename: file.name,
               size: file.size,
               type: file.type,
+              userId: userId,
               username: username,
               createdAt: serverTimestamp(),
             };
@@ -225,18 +254,4 @@ export async function downloadWithCloudFunction(mediaItem) {
     // Fallback to direct download
     window.open(mediaItem.url, "_blank");
   }
-}
-
-export async function uploadUser(username) {
-  await authenticate();
-
-  const auth = getAuth();
-  const user = auth.currentUser;
-
-  if (!user) {
-    throw new Error("User must be logged in to upload user info");
-  }
-
-  const docRef = await addDoc(collection(db, "users"), {name: username});
-  return docRef;
 }

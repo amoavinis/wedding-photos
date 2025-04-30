@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import UploadModal from "../components/UploadModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlay } from "@fortawesome/free-solid-svg-icons";
 import ViewSelectedMedia from "../components/ViewSelectedMedia";
@@ -9,10 +8,7 @@ import { fetchPhotos } from "../services/firebase";
 export default function AdminPage() {
   const [mediaList, setMediaList] = useState([]);
   const [filteredMediaList, setFilteredMediaList] = useState([]);
-  const [username, setUsername] = useState("");
   const [selectedMedia, setSelectedMedia] = useState(null);
-
-  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     async function loadPhotos(snapshot) {
@@ -30,12 +26,6 @@ export default function AdminPage() {
     return () => unsubscribe();
   }, []);
 
-  async function onUpload(files) {
-    const updatedMediaList = [...mediaList, ...files];
-    setMediaList(updatedMediaList);
-    filterMediaList(updatedMediaList, username);
-  }
-
   const openMediaModal = (media) => {
     setSelectedMedia({ ...media, url: media.downloadURL, downloadURL: null });
   };
@@ -52,7 +42,6 @@ export default function AdminPage() {
   }
 
   function onFilterChange(value) {
-    setUsername(value);
     filterMediaList(mediaList, value);
   }
 
@@ -61,7 +50,7 @@ export default function AdminPage() {
       <div className="user-filter">
         <UserSelector updateFn={(x) => onFilterChange(x)} />
       </div>
-      <div className="body">
+      <div className="admin-body">
         {filteredMediaList.map((media, index) => (
           <div
             key={index}
@@ -85,13 +74,6 @@ export default function AdminPage() {
           </div>
         ))}
       </div>
-
-      {showModal && (
-        <UploadModal
-          uploadFn={onUpload}
-          closeModalFn={() => setShowModal(false)}
-        />
-      )}
 
       {selectedMedia && (
         <ViewSelectedMedia

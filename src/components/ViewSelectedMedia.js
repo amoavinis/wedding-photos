@@ -1,4 +1,5 @@
 import "../App.css";
+import "../css/ViewSelectedMedia.css"
 import { downloadWithCloudFunction } from "../services/firebase";
 
 export default function ViewSelectedMedia({ selectedMedia, closeModalFn }) {
@@ -7,8 +8,8 @@ export default function ViewSelectedMedia({ selectedMedia, closeModalFn }) {
   }
 
   return (
-    <div className="modal" onClick={closeModalFn}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+    <div className="view-modal" onClick={closeModalFn}>
+      <div className="view-modal-content" onClick={(e) => e.stopPropagation()}>
         {selectedMedia.type.startsWith("image") ? (
           <img src={selectedMedia.url} alt="Full View" className="full-media" />
         ) : (

@@ -1,12 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../App.css";
-import { uploadMediaBatch } from "../services/firebase";
+import { uploadUser, uploadMediaBatch, uploadWish } from "../services/firebase";
+import Modal from "./Modal";
 
-export default function UploadModal({ uploadFn, closeModalFn }) {
+export default function UploadModal({ closeModalFn }) {
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [userId, setUserId] = useState(null);
   const [username, setUsername] = useState("");
+  const [wish, setWish] = useState("");
   const [progress, setProgress] = useState(0);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let user = getUserLoggedIn();
+    setUserId(user.id);
+    setUsername(user.name);
+  }, []);
+
+  function getUserLoggedIn() {
+    let userObjStr = localStorage.getItem("userLoggedIn");
+    if (userObjStr) {
+      return JSON.parse(userObjStr);
+    } else {
+      return { id: null, name: "" };
+    }
+  }
 
   function openFileDialog() {
     const input = document.createElement("input");
@@ -24,18 +42,29 @@ export default function UploadModal({ uploadFn, closeModalFn }) {
     setSelectedFiles(selectedFiles.filter((_, i) => i !== index));
   }
 
-  async function uploadFiles() {
+  async function submit() {
     setLoading(true);
-    let toEmit = await uploadMediaBatch(
-      selectedFiles,
-      username,
-      updateLoadingBar
-    );
-
-    uploadFn(toEmit);
-    setSelectedFiles([]);
+    await addNewUser();
+    await uploadFiles();
+    await addWish();
     setLoading(false);
-    closeModalFn();
+  }
+
+  async function addNewUser() {
+    if (!userId || username !== getUserLoggedIn().name) {
+      let res = await uploadUser(username);
+      let userObj = { id: res.id, name: username };
+      localStorage.setItem("userLoggedIn", JSON.stringify(userObj));
+      setUserId(res.id);
+    }
+  }
+
+  async function uploadFiles() {
+    await uploadMediaBatch(selectedFiles, userId, username, updateLoadingBar);
+  }
+
+  async function addWish() {
+    await uploadWish(wish, userId);
   }
 
   function updateLoadingBar(value) {
@@ -43,70 +72,9 @@ export default function UploadModal({ uploadFn, closeModalFn }) {
   }
 
   return (
-    <div className="modal">
-      <div className="modal-content">
-        <div>
-          <h2>Select photos to upload</h2>
-          <button
-            onClick={openFileDialog}
-            className={loading ? "file-select-btn disabled" : "file-select-btn"}
-            disabled={loading}
-          >
-            Choose Files
-          </button>
-        </div>
-        <div className="preview-container">
-          {selectedFiles.map((file, index) => (
-            <div key={index} className="preview-item">
-              {file.type.startsWith("video") ? (
-                <video width="100%" controls="controls" preload="metadata">
-                  <source
-                    src={URL.createObjectURL(file)}
-                    type="video/mp4"
-                  ></source>
-                </video>
-              ) : (
-                <img
-                  src={URL.createObjectURL(file)}
-                  alt="Preview"
-                  className="preview-img"
-                />
-              )}
-              {!loading && (
-                <button
-                  className="remove-btn"
-                  onClick={() => removeFile(index)}
-                >
-                  X
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-            width: "100%",
-            height: 50,
-            gap: 20,
-          }}
-        >
-          <span>Όνομα χρήστη που ανεβάζει: </span>
-          <input
-            style={{
-              height: "100%",
-              width: "30%",
-              borderRadius: 10,
-              borderWidth: 1,
-            }}
-            readOnly={loading}
-            placeholder="Όνομα"
-            onKeyUp={($event) => setUsername($event.target.value)}
-          />
-        </div>
+    <>
+      <Modal isOpen={loading}>
+        {/* Progress bar */}
         {progress > 0 && (
           <div className="loading-container">
             <div
@@ -119,28 +87,126 @@ export default function UploadModal({ uploadFn, closeModalFn }) {
             <div className="loading-text">{Math.round(progress)}%</div>
           </div>
         )}
+      </Modal>
+      <div className="upload-container">
+        <div>
+          <div style={{ display: "flex", flexDirection: "row" }}>
+            {/* Insert username */}
+            <div
+              className="input-container"
+              style={{
+                height: 50,
+                width: "70%",
+              }}
+            >
+              <span style={{width: 250}}>Όνομα χρήστη που ανεβάζει: </span>
+              <input
+                style={{
+                  height: "100%",
+                  width: "calc(100% - 300px)",
+                  borderRadius: 10,
+                  borderWidth: 1,
+                }}
+                defaultValue={username}
+                readOnly={loading}
+                onKeyUp={($event) => setUsername($event.target.value)}
+              />
+            </div>
+            {/* Select files */}
+            <div
+              style={{
+                height: 50,
+                width: "30%",
+              }}
+            >
+              <button
+                onClick={openFileDialog}
+                className={
+                  loading ? "file-select-btn disabled" : "file-select-btn"
+                }
+                disabled={loading}
+              >
+                Choose Files
+              </button>
+            </div>
+          </div>
 
-        <div className="button-row">
-          <button
-            onClick={() => closeModalFn()}
-            className={loading ? "close-btn disabled" : "close-btn"}
-            disabled={loading}
+          {/* View selected files */}
+          <div className="preview-container">
+            {selectedFiles.map((file, index) => (
+              <div key={index} className="preview-item">
+                {file.type.startsWith("video") ? (
+                  <video width="100%" controls="controls" preload="metadata">
+                    <source
+                      src={URL.createObjectURL(file)}
+                      type="video/mp4"
+                    ></source>
+                  </video>
+                ) : (
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt="Preview"
+                    className="preview-img"
+                  />
+                )}
+                {!loading && (
+                  <button
+                    className="remove-btn"
+                    onClick={() => removeFile(index)}
+                  >
+                    X
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+          {/* Insert wish */}
+          <div
+            className="input-container"
+            style={{
+              height: 100,
+            }}
           >
-            Close
-          </button>
-          <button
-            onClick={uploadFiles}
-            disabled={selectedFiles.length === 0 || !username || loading}
-            className={
-              selectedFiles.length === 0 || !username || loading
-                ? "confirm-btn disabled"
-                : "confirm-btn"
-            }
-          >
-            Upload
-          </button>
+            <span>Ευχή: </span>
+            <textarea
+              style={{
+                height: "calc(100% - 20px)",
+                width: "50%",
+                resize: "none",
+                borderRadius: 10,
+                borderWidth: 1,
+                padding: 10,
+              }}
+              defaultValue={wish}
+              readOnly={loading}
+              onKeyUp={($event) => setWish($event.target.value)}
+            />
+          </div>
+        </div>
+        <div>
+          {/* Submit buttons */}
+          <div className="button-row">
+            <button
+              onClick={() => closeModalFn()}
+              className={loading ? "close-btn disabled" : "close-btn"}
+              disabled={loading}
+            >
+              Close
+            </button>
+            <button
+              onClick={submit}
+              disabled={selectedFiles.length === 0 || !username || loading}
+              className={
+                selectedFiles.length === 0 || !username || loading
+                  ? "confirm-btn disabled"
+                  : "confirm-btn"
+              }
+            >
+              Upload
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

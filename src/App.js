@@ -1,49 +1,62 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useLocation, BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
-import Auth from "./components/Auth";
+import UploadModal from "./components/UploadModal";
+import AdminPage from "./components/AdminPage";
 
 export default function EventMediaApp() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [showUploadScreen, setShowUploadScreen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  return (
+    <Router>
+      <AppContent 
+        showUploadScreen={showUploadScreen} 
+        setShowUploadScreen={setShowUploadScreen}
+        isAdmin={isAdmin}
+        setIsAdmin={setIsAdmin}
+      />
+    </Router>
+  );
+}
+
+function AppContent({ showUploadScreen, setShowUploadScreen, isAdmin, setIsAdmin }) {
+  const location = useLocation();
 
   useEffect(() => {
-    let userObjStr = localStorage.getItem("userLoggedIn");
-    if (userObjStr) {
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
+    if (location.pathname === "/tzotzotzia") {
+      setIsAdmin(true);
     }
-    setLoading(false);
-  }, []);
-
-  function handleAuthResponse(response) {
-    if (response) {
-      setIsLoggedIn(true);
-    }
-  }
+  }, [location.pathname, setIsAdmin]);
 
   return (
     <div className="h-100">
       <div className="header">
+        <div style={{ width: "15%" }}></div>
         <div className="title-box">
           <span className="title">Καλώς ήρθατε στο γάμο μας!</span>
         </div>
-        {/* <div className="open-modal-box">
-          <button
-            onClick={() => setShowModal(true)}
-            className="open-modal-button"
-          >
-            Upload
-          </button>
-        </div> */}
+        {!showUploadScreen && !isAdmin ? (
+          <div className="open-modal-box">
+            <button
+              onClick={() => setShowUploadScreen(true)}
+              className="open-modal-button"
+            >
+              Upload
+            </button>
+          </div>
+        ) : null}
       </div>
-      {loading ? (
-        <div>Loading...</div>
-      ) : isLoggedIn ? (
-        <div>User is logged in</div>
-      ) : (
-        <Auth callbackFn={handleAuthResponse} />
-      )}
+
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <div>{showUploadScreen ? <UploadModal /> : "Home page"}</div>
+          }
+        />
+        <Route path="tzotzotzia" element={<AdminPage />} />
+      </Routes>
     </div>
   );
 }
