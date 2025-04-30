@@ -3,7 +3,7 @@ import "../App.css";
 import { uploadUser, uploadMediaBatch, uploadWish } from "../services/firebase";
 import Modal from "./Modal";
 
-export default function UploadModal({ closeModalFn }) {
+export default function UploadPage({ closeModalFn }) {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [userId, setUserId] = useState(null);
   const [username, setUsername] = useState("");

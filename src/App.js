@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
-import UploadModal from "./components/UploadModal";
+import UploadPage from "./components/UploadPage";
 import AdminPage from "./components/AdminPage";
 
 export default function EventMediaApp() {
@@ -52,7 +52,7 @@ function AppContent({ showUploadScreen, setShowUploadScreen, isAdmin, setIsAdmin
         <Route
           path="/"
           element={
-            <div>{showUploadScreen ? <UploadModal /> : "Home page"}</div>
+            <div>{showUploadScreen ? <UploadPage /> : "Home page"}</div>
           }
         />
         <Route path="tzotzotzia" element={<AdminPage />} />
