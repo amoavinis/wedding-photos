@@ -1,8 +1,14 @@
 import { useEffect, useState } from "react";
-import { useLocation, BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  useLocation,
+  BrowserRouter as Router,
+  Routes,
+  Route,
+} from "react-router-dom";
 import "./App.css";
 import UploadPage from "./components/UploadPage";
 import AdminPage from "./components/AdminPage";
+import Homepage from "./components/Homepage";
 
 export default function EventMediaApp() {
   const [showUploadScreen, setShowUploadScreen] = useState(false);
@@ -10,8 +16,8 @@ export default function EventMediaApp() {
 
   return (
     <Router>
-      <AppContent 
-        showUploadScreen={showUploadScreen} 
+      <AppContent
+        showUploadScreen={showUploadScreen}
         setShowUploadScreen={setShowUploadScreen}
         isAdmin={isAdmin}
         setIsAdmin={setIsAdmin}
@@ -20,7 +26,12 @@ export default function EventMediaApp() {
   );
 }
 
-function AppContent({ showUploadScreen, setShowUploadScreen, isAdmin, setIsAdmin }) {
+function AppContent({
+  showUploadScreen,
+  setShowUploadScreen,
+  isAdmin,
+  setIsAdmin,
+}) {
   const location = useLocation();
 
   useEffect(() => {
@@ -42,21 +53,23 @@ function AppContent({ showUploadScreen, setShowUploadScreen, isAdmin, setIsAdmin
               onClick={() => setShowUploadScreen(true)}
               className="open-modal-button"
             >
-              Upload
+              Ανεβάστε
             </button>
           </div>
         ) : null}
       </div>
 
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <div>{showUploadScreen ? <UploadPage /> : "Home page"}</div>
-          }
-        />
-        <Route path="tzotzotzia" element={<AdminPage />} />
-      </Routes>
+      <div className="h-85">
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>{showUploadScreen ? <UploadPage /> : <Homepage />}</>
+            }
+          />
+          <Route path="tzotzotzia" element={<AdminPage />} />
+        </Routes>
+      </div>
     </div>
   );
 }

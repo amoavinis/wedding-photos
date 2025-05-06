@@ -1,4 +1,3 @@
-import "../App.css";
 import "../css/ViewSelectedMedia.css"
 import { downloadWithCloudFunction } from "../services/firebase";
 

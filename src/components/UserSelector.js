@@ -10,11 +10,11 @@ export default function UserSelector({updateFn}) {
         gap: 20,
       }}
     >
-      <span>Αναζήτηση με όνομα: </span>
+      <span style={{width: 200}}>Αναζήτηση με όνομα: </span>
       <input
         style={{
           height: "100%",
-          width: "20%",
+          width: "calc(100% - 200px)",
           borderRadius: 10,
           borderWidth: 1,
         }}

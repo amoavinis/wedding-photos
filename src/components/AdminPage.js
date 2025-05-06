@@ -4,6 +4,7 @@ import { faPlay } from "@fortawesome/free-solid-svg-icons";
 import ViewSelectedMedia from "../components/ViewSelectedMedia";
 import UserSelector from "../components/UserSelector";
 import { fetchPhotos } from "../services/firebase";
+import "../css/Admin.css";
 
 export default function AdminPage() {
   const [mediaList, setMediaList] = useState([]);
@@ -48,7 +49,25 @@ export default function AdminPage() {
   return (
     <>
       <div className="user-filter">
-        <UserSelector updateFn={(x) => onFilterChange(x)} />
+        <div style={{ width: "50%" }}>
+          <UserSelector updateFn={(x) => onFilterChange(x)} />
+        </div>
+        <div
+          style={{
+            display: "flex",
+            height: "100%",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 10,
+          }}
+        >
+          <span>Προβολή φακέλων</span>
+          <label class="switch">
+            <input type="checkbox"/>
+            <span class="slider round"></span>
+          </label>
+          <span>Προβολή όλων</span>
+        </div>
       </div>
       <div className="admin-body">
         {filteredMediaList.map((media, index) => (

@@ -12,6 +12,7 @@ import {
   onSnapshot,
   addDoc,
   serverTimestamp,
+  getDocs
 } from "firebase/firestore";
 import { firebaseConfig } from "../config/config";
 import Compressor from "compressorjs";
@@ -254,4 +255,27 @@ export async function downloadWithCloudFunction(mediaItem) {
     // Fallback to direct download
     window.open(mediaItem.url, "_blank");
   }
+}
+
+export async function getUserFolders() {
+   // 1. Get all users
+   const usersSnapshot = await getDocs(collection(db, "users"));
+   const users = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+  // 2. Get all posts
+  const mediaSnapshot = await getDocs(collection(db, "media"));
+  const media = mediaSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+  // 3. Get all wishes
+  const wishesSnapshot = await getDocs(collection(db, "wishes"));
+  const wishes = wishesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+  // 4. Combine them
+  const folders = users.map(user => ({
+    ...user,
+    media: media.filter(m => m.userId === user.id),
+    wishes: wishes.filter(w => w.userId === user.id),
+  }));
+
+  return folders
 }

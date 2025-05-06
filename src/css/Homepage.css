@@ -1,0 +1,65 @@
+#overlay {
+  position: fixed;
+  display: block;
+  width: 100%;
+  height: 85%;
+  top: 15%;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #efd6ad;
+  opacity: 0.3;
+  z-index: 2;
+}
+
+.crossfade-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+img {
+  cursor: unset !important;
+  border-radius: unset;
+}
+
+.crossfade-image {
+  position: absolute;
+  top: 15%;
+  left: 0;
+  width: 100%;
+  height: 85%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  -webkit-animation: fade 12s infinite;
+  animation: fade 12s infinite;
+  opacity: 0;
+}
+
+@-webkit-keyframes fade {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+}
+@keyframes fade {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+}
