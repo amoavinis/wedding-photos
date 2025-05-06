@@ -43,7 +43,7 @@ function AppContent({
   return (
     <div className="h-100">
       <div className="header">
-        <div style={{ width: "15%" }}></div>
+        <div style={{ width: "20%" }}></div>
         <div className="title-box">
           <span className="title">Καλώς ήρθατε στο γάμο μας!</span>
         </div>
