@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { uploadUser, uploadMediaBatch, uploadWish } from "../services/firebase";
+import "../css/UploadPage.css";
 import Modal from "./Modal";
 
 export default function UploadPage({ closeModalFn }) {

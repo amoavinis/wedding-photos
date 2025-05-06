@@ -1,37 +1,30 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "../css/Homepage.css";
 
 export default function Homepage() {
+  const [index, setIndex] = useState(1);
+  const images = [1, 2, 3]; // Array of image indices
+
   useEffect(() => {
-    // Force the browser to load images immediately
-    [1, 2, 3].forEach(i => {
-      const img = new Image();
-      img.src = `/assets/image${i}.jpg`;
-    });
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev % 3) + 1);
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, []);
 
   return (
     <>
       <div id="overlay"></div>
-      <div className="crossfade-container">
-        <img
-          src={`/assets/image1.jpg`}
-          className="crossfade-image"
-          style={{ animationDelay: '0s' }}
-          alt="Img 1"
-        />
-        <img
-          src={`/assets/image2.jpg`}
-          className="crossfade-image"
-          style={{ animationDelay: '4s' }}
-          alt="Img 2"
-        />
-        <img
-          src={`/assets/image3.jpg`}
-          className="crossfade-image"
-          style={{ animationDelay: '8s' }}
-          alt="Img 3"
-        />
+      <div className="full-image-container">
+        {images.map((imgIndex) => (
+          <img
+            key={imgIndex}
+            className={`full-image ${index === imgIndex ? "active" : ""}`}
+            src={`/assets/image${imgIndex}.jpg`}
+            alt="Content"
+          />
+        ))}
       </div>
     </>
   );

@@ -12,12 +12,11 @@
   z-index: 2;
 }
 
-.crossfade-container {
+.full-image-container {
   height: 100%;
   width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  position: relative;
+  overflow: hidden;
 }
 
 img {
@@ -25,41 +24,17 @@ img {
   border-radius: unset;
 }
 
-.crossfade-image {
+.full-image {
   position: absolute;
-  top: 15%;
+  top: 0;
   left: 0;
   width: 100%;
-  height: 85%;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  -webkit-animation: fade 12s infinite;
-  animation: fade 12s infinite;
+  height: 100%;
+  object-position: center;
   opacity: 0;
+  transition: opacity 1s ease-in-out;
 }
 
-@-webkit-keyframes fade {
-  0%,
-  100% {
-    opacity: 0;
-  }
-  20% {
-    opacity: 1;
-  }
-  80% {
-    opacity: 1;
-  }
-}
-@keyframes fade {
-  0%,
-  100% {
-    opacity: 0;
-  }
-  20% {
-    opacity: 1;
-  }
-  80% {
-    opacity: 1;
-  }
+.full-image.active {
+  opacity: 1;
 }
