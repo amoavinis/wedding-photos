@@ -3,7 +3,7 @@ import { uploadUser, uploadMediaBatch, uploadWish } from "../services/firebase";
 import "../css/UploadPage.css";
 import Modal from "./Modal";
 
-export default function UploadPage({ closeModalFn }) {
+export default function UploadPage({ callbackFn }) {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [userId, setUserId] = useState(null);
   const [username, setUsername] = useState("");
@@ -48,6 +48,7 @@ export default function UploadPage({ closeModalFn }) {
     await uploadFiles();
     await addWish();
     setLoading(false);
+    callbackFn();
   }
 
   async function addNewUser() {
@@ -64,7 +65,7 @@ export default function UploadPage({ closeModalFn }) {
   }
 
   async function addWish() {
-    await uploadWish(wish, userId);
+    await uploadWish(wish, userId, username);
   }
 
   function updateLoadingBar(value) {
@@ -75,37 +76,42 @@ export default function UploadPage({ closeModalFn }) {
     <>
       <Modal isOpen={loading}>
         {/* Progress bar */}
-        {progress > 0 && (
-          <div className="loading-container">
-            <div
-              className="loading-bar"
-              style={{
-                width: `${progress}%`,
-                backgroundColor: "green",
-              }}
-            />
-            <div className="loading-text">{Math.round(progress)}%</div>
-          </div>
-        )}
+        <div className="loading-container">
+          <div
+            className="loading-bar"
+            style={{
+              width: `${progress}%`,
+              backgroundColor: "green",
+            }}
+          />
+          <div className="loading-text">{Math.round(progress)}%</div>
+        </div>
       </Modal>
       <div className="upload-container">
-        <div style={{ display: "flex", flexDirection: "row" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            width: "100%",
+            gap: 10,
+          }}
+        >
           {/* Insert username */}
           <div
             className="input-container"
             style={{
               height: 50,
-              width: "70%",
+              width: "calc(70% - 10px)",
             }}
           >
-            <span style={{ width: 250 }}>Όνομα χρήστη που ανεβάζει: </span>
             <input
               style={{
                 height: "100%",
-                width: "calc(100% - 300px)",
+                width: "100%",
                 borderRadius: 10,
                 borderWidth: 1,
               }}
+              placeholder="Όνομα χρήστη που ανεβάζει"
               defaultValue={username}
               readOnly={loading}
               onKeyUp={($event) => setUsername($event.target.value)}
@@ -125,7 +131,7 @@ export default function UploadPage({ closeModalFn }) {
               }
               disabled={loading}
             >
-              Choose Files
+              Επιλογή αρχείων
             </button>
           </div>
         </div>
@@ -166,16 +172,16 @@ export default function UploadPage({ closeModalFn }) {
             height: 100,
           }}
         >
-          <span>Ευχή: </span>
           <textarea
             style={{
               height: "calc(100% - 20px)",
-              width: "50%",
+              width: "100%",
               resize: "none",
               borderRadius: 10,
               borderWidth: 1,
               padding: 10,
             }}
+            placeholder="Ευχή"
             defaultValue={wish}
             readOnly={loading}
             onKeyUp={($event) => setWish($event.target.value)}
@@ -186,11 +192,11 @@ export default function UploadPage({ closeModalFn }) {
           {/* Submit buttons */}
           <div className="button-row">
             <button
-              onClick={() => closeModalFn()}
+              onClick={callbackFn}
               className={loading ? "close-btn disabled" : "close-btn"}
               disabled={loading}
             >
-              Close
+              Ακύρωση
             </button>
             <button
               onClick={submit}
@@ -201,7 +207,7 @@ export default function UploadPage({ closeModalFn }) {
                   : "confirm-btn"
               }
             >
-              Upload
+              Ανέβασμα
             </button>
           </div>
         </div>

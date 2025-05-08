@@ -27,7 +27,7 @@ img,
 }
 
 .file-select-btn {
-  background-color: purple;
+  background-color: #e3aa7e;
   color: white;
   height: 100%;
 }
@@ -51,12 +51,12 @@ img,
 }
 
 .confirm-btn {
-  background-color: green;
+  background-color: rgb(128, 83, 0);
   color: white;
 }
 
 .close-btn {
-  background-color: red;
+  background-color: #aaa;
   color: white;
 }
 
@@ -78,6 +78,14 @@ img,
   position: relative;
   width: calc(20% - 10px);
   height: fit-content;
+}
+
+@media only screen and (max-width: 600px) {
+  .preview-item {
+    position: relative;
+    width: calc(33.3% - 10px) !important;
+    height: fit-content;
+  }
 }
 
 .remove-btn {

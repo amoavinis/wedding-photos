@@ -64,7 +64,17 @@ function AppContent({
           <Route
             path="/"
             element={
-              <>{showUploadScreen ? <UploadPage /> : <Homepage />}</>
+              <>
+                {showUploadScreen ? (
+                  <UploadPage
+                    callbackFn={() => {
+                      setShowUploadScreen(false);
+                    }}
+                  />
+                ) : (
+                  <Homepage />
+                )}
+              </>
             }
           />
           <Route path="tzotzotzia" element={<AdminPage />} />
