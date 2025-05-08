@@ -9,10 +9,9 @@ import {
 import { getFirestore } from "firebase/firestore";
 import {
   collection,
-  onSnapshot,
   addDoc,
   serverTimestamp,
-  getDocs
+  getDocs,
 } from "firebase/firestore";
 import { firebaseConfig } from "../config/config";
 import Compressor from "compressorjs";
@@ -27,12 +26,14 @@ export async function authenticate() {
   await signInAnonymously(auth);
 }
 
-export function fetchPhotos(callback) {
-  const q = collection(db, "media");
+export async function fetchPhotos() {
+  const mediaSnapshot = await getDocs(collection(db, "media"));
+  const media = mediaSnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
 
-  return onSnapshot(q, (snapshot) => {
-    callback(snapshot);
-  });
+  return media;
 }
 
 export async function uploadUser(username) {
@@ -45,11 +46,11 @@ export async function uploadUser(username) {
     throw new Error("User must be logged in to upload user info");
   }
 
-  const docRef = await addDoc(collection(db, "users"), {name: username});
+  const docRef = await addDoc(collection(db, "users"), { name: username });
   return docRef;
 }
 
-export async function uploadWish(wish, userId) {
+export async function uploadWish(wish, userId, username) {
   await authenticate();
 
   const auth = getAuth();
@@ -59,7 +60,11 @@ export async function uploadWish(wish, userId) {
     throw new Error("User must be logged in to upload wish");
   }
 
-  const docRef = await addDoc(collection(db, "messages"), {message: wish, userId: userId});
+  const docRef = await addDoc(collection(db, "messages"), {
+    message: wish,
+    userId: userId,
+    username: username,
+  });
   return docRef;
 }
 
@@ -178,7 +183,7 @@ export async function uploadMediaBatch(files, userId, username, progressCb) {
           (snapshot) => {
             // Track upload progress
             // let snapshotTotalBytes = snapshot.totalBytes;
-            
+
             // Calculate the delta since last update for this file
             const delta =
               snapshot.bytesTransferred - bytesTransferredPerFile[index];
@@ -258,24 +263,37 @@ export async function downloadWithCloudFunction(mediaItem) {
 }
 
 export async function getUserFolders() {
-   // 1. Get all users
-   const usersSnapshot = await getDocs(collection(db, "users"));
-   const users = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  // 1. Get all users
+  const usersSnapshot = await getDocs(collection(db, "users"));
+  const users = usersSnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
 
   // 2. Get all posts
   const mediaSnapshot = await getDocs(collection(db, "media"));
-  const media = mediaSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-  // 3. Get all wishes
-  const wishesSnapshot = await getDocs(collection(db, "wishes"));
-  const wishes = wishesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-  // 4. Combine them
-  const folders = users.map(user => ({
-    ...user,
-    media: media.filter(m => m.userId === user.id),
-    wishes: wishes.filter(w => w.userId === user.id),
+  const media = mediaSnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
   }));
 
-  return folders
+  // 3. Get all wishes
+  const wishesSnapshot = await getDocs(collection(db, "messages"));
+  const wishes = wishesSnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  // 4. Combine them
+  const folders = users.map((user) => ({
+    ...user,
+    media: media.filter(
+      (m) => m.userId === user.id || (!m.userId && m.username === user.name)
+    ),
+    wishes: wishes.filter(
+      (w) => w.userId === user.id || (!w.userId && w.username === user.name)
+    ),
+  }));
+
+  return folders;
 }
