@@ -3,12 +3,12 @@ service firebase.storage {
   match /b/{bucket}/o {
     // Public read access to all files
     match /{allPaths=**} {
-       allow read, write: if request.auth == null && request.app.token.valid;
+       allow read, write: if request.auth != null && request.app.token.valid;
     }
     
     // OR more specific rules for your media folder:
     match /media/{imageId} {
-       allow read, write: if request.auth == null && request.app.token.valid;
+       allow read, write: if request.auth != null && request.app.token.valid;
     }
   }
 }
