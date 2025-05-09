@@ -8,8 +8,8 @@
     "source": "dataconnect"
   },
   "firestore": {
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
+    "rules": "firebase/firestore.rules",
+    "indexes": "firebase/firestore.indexes.json"
   },
   "functions": [
     {
@@ -28,6 +28,6 @@
     }
   ],
   "storage": {
-    "rules": "storage.rules"
+    "rules": "firebase/storage.rules"
   }
 }

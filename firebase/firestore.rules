@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /media/{docId} {
+      // Allow reads/writes only with valid App Check token
+      allow read, write: if request.auth == null && request.app.token.valid;
+    }
+    match /messages/{docId} {
+      // Allow reads/writes only with valid App Check token
+      allow read, write: if request.auth == null && request.app.token.valid;
+    }
+    match /users/{docId} {
+      // Allow reads/writes only with valid App Check token
+      allow read, write: if request.auth == null && request.app.token.valid;
+    }
+  }
+}
