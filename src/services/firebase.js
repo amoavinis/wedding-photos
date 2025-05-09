@@ -15,10 +15,17 @@ import {
 } from "firebase/firestore";
 import { firebaseConfig } from "../config/config";
 import Compressor from "compressorjs";
+import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 
 const app = initializeApp(firebaseConfig);
 export const storage = getStorage(app);
 export const db = getFirestore(app);
+
+// Initialize App Check with reCAPTCHA Enterprise
+export const appCheck = initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider('6Ldq9TMrAAAAAOZ0mIXtF5TRNzntplep3QZlmYWT'),
+  isTokenAutoRefreshEnabled: true,
+});
 
 // Call this before uploading
 export async function authenticate() {
