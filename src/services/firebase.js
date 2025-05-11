@@ -6,39 +6,35 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from "firebase/storage";
-import { getFirestore } from "firebase/firestore";
 import {
+  getFirestore,
   collection,
   addDoc,
   serverTimestamp,
   getDocs,
 } from "firebase/firestore";
-import { firebaseConfig } from "../config/config";
 import Compressor from "compressorjs";
-import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+import {
+  initializeAppCheck,
+  ReCaptchaV3Provider,
+} from "firebase/app-check";
+import { firebaseConfig } from "../config/config";
 
+// 1. Initialize Firebase App
 const app = initializeApp(firebaseConfig);
-export const storage = getStorage(app);
-export const db = getFirestore(app);
 
-// FORCE DEBUG MODE (for localhost)
-if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-  window.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
-  console.log("App Check debug mode enabled");
-  window.addEventListener('FIREBASE_APPCHECK_DEBUG_TOKEN', (e) => {
-    console.log('DEBUG TOKEN:', e.detail.token);
-  });
-}
-
-// Initialize App Check with reCAPTCHA Enterprise
+// 2. Initialize App Check
 export const appCheck = initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider('6Ldq9TMrAAAAAOZ0mIXtF5TRNzntplep3QZlmYWT'),
+  provider: new ReCaptchaV3Provider("6Ldq9TMrAAAAAOZ0mIXtF5TRNzntplep3QZlmYWT"),
   isTokenAutoRefreshEnabled: true,
 });
 
-// Call this before uploading
+export const auth = getAuth(app);
+export const storage = getStorage(app);
+export const db = getFirestore(app);
+
+// Authentication helper
 export async function authenticate() {
-  const auth = getAuth();
   await signInAnonymously(auth);
 }
 
@@ -59,6 +55,51 @@ export async function fetchPhotos() {
   }));
 
   return media;
+}
+
+export async function getUserFolders() {
+  await authenticate();
+
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  if (!user) {
+    throw new Error("User must be logged in to view folders");
+  }
+
+  // 1. Get all users
+  const usersSnapshot = await getDocs(collection(db, "users"));
+  const users = usersSnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  // 2. Get all posts
+  const mediaSnapshot = await getDocs(collection(db, "media"));
+  const media = mediaSnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  // 3. Get all wishes
+  const wishesSnapshot = await getDocs(collection(db, "messages"));
+  const wishes = wishesSnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  // 4. Combine them
+  const folders = users.map((user) => ({
+    ...user,
+    media: media.filter(
+      (m) => m.userId === user.id || (!m.userId && m.username === user.name)
+    ),
+    wishes: wishes.filter(
+      (w) => w.userId === user.id || (!w.userId && w.username === user.name)
+    ),
+  }));
+
+  return folders;
 }
 
 export async function uploadUser(username) {
@@ -285,49 +326,4 @@ export async function downloadWithCloudFunction(mediaItem) {
     // Fallback to direct download
     window.open(mediaItem.url, "_blank");
   }
-}
-
-export async function getUserFolders() {
-  await authenticate();
-
-  const auth = getAuth();
-  const user = auth.currentUser;
-
-  if (!user) {
-    throw new Error("User must be logged in to view folders");
-  }
-
-  // 1. Get all users
-  const usersSnapshot = await getDocs(collection(db, "users"));
-  const users = usersSnapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
-
-  // 2. Get all posts
-  const mediaSnapshot = await getDocs(collection(db, "media"));
-  const media = mediaSnapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
-
-  // 3. Get all wishes
-  const wishesSnapshot = await getDocs(collection(db, "messages"));
-  const wishes = wishesSnapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
-
-  // 4. Combine them
-  const folders = users.map((user) => ({
-    ...user,
-    media: media.filter(
-      (m) => m.userId === user.id || (!m.userId && m.username === user.name)
-    ),
-    wishes: wishes.filter(
-      (w) => w.userId === user.id || (!w.userId && w.username === user.name)
-    ),
-  }));
-
-  return folders;
 }
