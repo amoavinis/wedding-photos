@@ -86,6 +86,15 @@ export default function UploadPage({ callbackFn }) {
           />
           <div className="loading-text">{Math.round(progress)}%</div>
         </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          Σας ευχαριστούμε για τις φωτογραφίες και τις ευχές!
+        </div>
       </Modal>
       <div className="upload-container">
         <div
@@ -110,6 +119,7 @@ export default function UploadPage({ callbackFn }) {
                 width: "100%",
                 borderRadius: 10,
                 borderWidth: 1,
+                paddingLeft: 10,
               }}
               placeholder="Όνομα χρήστη που ανεβάζει"
               defaultValue={username}

@@ -6,7 +6,7 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from "firebase/storage";
-import { getFirestore, serverTimestamp } from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
 import Compressor from "compressorjs";
 import {
   initializeAppCheck,
@@ -124,7 +124,12 @@ export async function uploadUser(username) {
     throw new Error("User must be logged in to upload user info");
   }
 
-  const docRef = await addDoc(collection(db, "users"), { name: username });
+  const docRef = await callFunction(
+    "https://us-central1-wedding-photos-36c1e.cloudfunctions.net/uploadUser",
+    "POST",
+    { username: username }
+  );
+
   return docRef;
 }
 
@@ -138,11 +143,16 @@ export async function uploadWish(wish, userId, username) {
     throw new Error("User must be logged in to upload wish");
   }
 
-  const docRef = await addDoc(collection(db, "messages"), {
-    message: wish,
-    userId: userId,
-    username: username,
-  });
+  const docRef = await callFunction(
+    "https://us-central1-wedding-photos-36c1e.cloudfunctions.net/uploadWish",
+    "POST",
+    {
+      message: wish,
+      userId: userId,
+      username: username,
+    }
+  );
+
   return docRef;
 }
 
@@ -260,8 +270,6 @@ export async function uploadMediaBatch(files, userId, username, progressCb) {
           "state_changed",
           (snapshot) => {
             // Track upload progress
-            // let snapshotTotalBytes = snapshot.totalBytes;
-
             // Calculate the delta since last update for this file
             const delta =
               snapshot.bytesTransferred - bytesTransferredPerFile[index];
@@ -281,34 +289,27 @@ export async function uploadMediaBatch(files, userId, username, progressCb) {
             const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
             // 5. Save metadata to Firestore
             const data = {
-              preview: preview,
-              downloadURL: downloadURL,
               filename: file.name,
-              size: file.size,
               type: file.type,
+              size: file.size,
               userId: userId,
               username: username,
-              createdAt: serverTimestamp(),
+              preview: preview,
+              downloadURL: downloadURL,
             };
-            const docRef = await addDoc(collection(db, "media"), data);
 
-            resolve({ id: docRef.id, downloadURL: downloadURL });
+            const response = await callFunction(
+              "https://us-central1-wedding-photos-36c1e.cloudfunctions.net/uploadMedia",
+              "POST",
+              data
+            );
+
+            resolve({ id: response.id, ...data });
           }
         );
       });
-      let requestResult = await promise;
 
-      let toReturn = {
-        id: requestResult.id,
-        filename: file.name,
-        type: file.type,
-        size: file.size,
-        username: username,
-        preview: preview,
-        downloadURL: requestResult.downloadURL,
-      };
-
-      return toReturn;
+      return await promise;
     })
   );
 

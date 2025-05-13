@@ -4,8 +4,7 @@ service firebase.storage {
     // Function to verify both auth and App Check
     function isRequestValid() {
       return request.auth != null 
-          && request.auth.token.firebase.sign_in_provider == 'anonymous'
-          && request.app != null;
+          && request.auth.token.firebase.sign_in_provider == 'anonymous';
     }
 
     // Media folder rules (matches your Firestore pattern)
