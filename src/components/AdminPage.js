@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlay, faFolder } from "@fortawesome/free-solid-svg-icons";
 import ViewSelectedMedia from "../components/ViewSelectedMedia";
@@ -13,37 +13,32 @@ export default function AdminPage() {
   const [filteredFoldersList, setFilteredFoldersList] = useState([]);
   const [selectedMedia, setSelectedMedia] = useState(null);
   const [toggleValue, setToggleValue] = useState(false);
-  const effectRan = useRef(false); // Track if effect ran
   const [openFolder, setOpenFolder] = useState(null);
   const [openedWish, setOpenedWish] = useState(0);
+  const hasFetchedMedia = useRef(false);
+  const hasFetchedFolders = useRef(false);
 
-  const loadData = useCallback(
-    async (showPhotos) => {
-      if (showPhotos) {
-        if (!mediaList.length) {
-          let mediaData = await fetchPhotos();
-
+  useEffect(() => {
+    const run = async () => {
+      if (toggleValue) {
+        if (!hasFetchedMedia.current) {
+          hasFetchedMedia.current = true;
+          const mediaData = await fetchPhotos();
           setMediaList(mediaData);
           filterMediaList(mediaData, "");
         }
       } else {
-        if (!foldersList.length) {
-          let foldersData = await getUserFolders();
-
+        if (!hasFetchedFolders.current) {
+          hasFetchedFolders.current = true;
+          const foldersData = await getUserFolders();
           setFoldersList(foldersData);
           filterFoldersList(foldersData, "");
         }
       }
-    },
-    [foldersList, mediaList]
-  );
+    };
 
-  useEffect(() => {
-    if (effectRan.current) return; // Skip duplicate runs
-    effectRan.current = true;
-
-    loadData(toggleValue);
-  }, [loadData, toggleValue]);
+    run();
+  }, [toggleValue]);
 
   const openMediaModal = (media) => {
     setSelectedMedia({ ...media, url: media.downloadURL, downloadURL: null });
@@ -77,7 +72,6 @@ export default function AdminPage() {
   function handleToggle() {
     let newToggleValue = !toggleValue;
     setToggleValue(newToggleValue);
-    loadData(newToggleValue);
   }
 
   function onClickFolder(folder) {

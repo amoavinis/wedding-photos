@@ -6,24 +6,17 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from "firebase/storage";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  serverTimestamp,
-  getDocs,
-} from "firebase/firestore";
+import { getFirestore, serverTimestamp } from "firebase/firestore";
 import Compressor from "compressorjs";
 import {
   initializeAppCheck,
   ReCaptchaV3Provider,
+  getToken,
 } from "firebase/app-check";
 import { firebaseConfig } from "../config/config";
 
-// 1. Initialize Firebase App
 const app = initializeApp(firebaseConfig);
 
-// 2. Initialize App Check
 export const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaV3Provider("6Ldq9TMrAAAAAOZ0mIXtF5TRNzntplep3QZlmYWT"),
   isTokenAutoRefreshEnabled: true,
@@ -38,6 +31,25 @@ export async function authenticate() {
   await signInAnonymously(auth);
 }
 
+async function callFunction(url, method, body) {
+  // Get AppCheck token
+  const appCheckToken = await getToken(appCheck);
+
+  const res = await fetch(url, {
+    method: method,
+    headers: {
+      "Content-Type": "application/json",
+      "X-Firebase-AppCheck": appCheckToken.token,
+    },
+    body: body ? JSON.stringify(body) : null,
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Error ${res.status}: ${text}`);
+  }
+  return res.json();
+}
+
 export async function fetchPhotos() {
   await authenticate();
 
@@ -48,11 +60,11 @@ export async function fetchPhotos() {
     throw new Error("User must be logged in to view media");
   }
 
-  const mediaSnapshot = await getDocs(collection(db, "media"));
-  const media = mediaSnapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
+  const media = await callFunction(
+    "https://us-central1-wedding-photos-36c1e.cloudfunctions.net/getMedia",
+    "GET",
+    null
+  );
 
   return media;
 }
@@ -68,25 +80,25 @@ export async function getUserFolders() {
   }
 
   // 1. Get all users
-  const usersSnapshot = await getDocs(collection(db, "users"));
-  const users = usersSnapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
+  const users = await callFunction(
+    "https://us-central1-wedding-photos-36c1e.cloudfunctions.net/getUsers",
+    "GET",
+    null
+  );
 
   // 2. Get all posts
-  const mediaSnapshot = await getDocs(collection(db, "media"));
-  const media = mediaSnapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
+  const media = await callFunction(
+    "https://us-central1-wedding-photos-36c1e.cloudfunctions.net/getMedia",
+    "GET",
+    null
+  );
 
   // 3. Get all wishes
-  const wishesSnapshot = await getDocs(collection(db, "messages"));
-  const wishes = wishesSnapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
+  const wishes = await callFunction(
+    "https://us-central1-wedding-photos-36c1e.cloudfunctions.net/getWishes",
+    "GET",
+    null
+  );
 
   // 4. Combine them
   const folders = users.map((user) => ({
@@ -326,4 +338,24 @@ export async function downloadWithCloudFunction(mediaItem) {
     // Fallback to direct download
     window.open(mediaItem.url, "_blank");
   }
+}
+
+export async function checkAppToken() {
+  const appCheckToken = await getToken(appCheck);
+
+  // Call Cloud Function
+  const response = await fetch(
+    "https://us-central1-wedding-photos-36c1e.cloudfunctions.net/appCheckToken",
+    {
+      headers: {
+        "X-Firebase-AppCheck": appCheckToken.token,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+
+  return { ok: true, token: appCheckToken.token };
 }
