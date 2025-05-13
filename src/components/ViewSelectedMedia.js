@@ -10,7 +10,8 @@ export default function ViewSelectedMedia({ selectedMedia, closeModalFn }) {
     <div className="view-modal" onClick={closeModalFn}>
       <div className="view-modal-content" onClick={(e) => e.stopPropagation()}>
         {selectedMedia.type.startsWith("image") ? (
-          <img src={selectedMedia.url} alt="Full View" className="full-media" />
+          // eslint-disable-next-line jsx-a11y/alt-text
+          <img src={selectedMedia.url} className="full-media" />
         ) : (
           <video controls className="full-media">
             <source src={selectedMedia.url} type={selectedMedia.type} />

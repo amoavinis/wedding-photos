@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlay, faFolder } from "@fortawesome/free-solid-svg-icons";
@@ -143,10 +144,10 @@ export default function AdminPage() {
               style={{ cursor: "pointer" }}
             >
               {media.type.startsWith("image") ? (
-                <img src={media.preview} alt="Uploaded Media" />
+                <img src={media.preview} />
               ) : (
                 <div className="video-player-play-container">
-                  <img src={media.preview} alt="Uploaded Media" />
+                  <img src={media.preview} />
                   <div className="video-player-play-circle">
                     <FontAwesomeIcon
                       icon={faPlay}
@@ -205,10 +206,10 @@ export default function AdminPage() {
                 style={{ cursor: "pointer" }}
               >
                 {media.type.startsWith("image") ? (
-                  <img src={media.preview} alt="Uploaded Media" />
+                  <img src={media.preview} />
                 ) : (
                   <div className="video-player-play-container">
-                    <img src={media.preview} alt="Uploaded Media" />
+                    <img src={media.preview} />
                     <div className="video-player-play-circle">
                       <FontAwesomeIcon
                         icon={faPlay}

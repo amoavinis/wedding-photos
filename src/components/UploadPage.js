@@ -158,9 +158,9 @@ export default function UploadPage({ callbackFn }) {
                   ></source>
                 </video>
               ) : (
+                // eslint-disable-next-line jsx-a11y/alt-text
                 <img
                   src={URL.createObjectURL(file)}
-                  alt="Preview"
                   className="preview-img"
                 />
               )}

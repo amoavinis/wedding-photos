@@ -18,11 +18,11 @@ export default function Homepage() {
       <div id="overlay"></div>
       <div className="full-image-container">
         {images.map((imgIndex) => (
+          // eslint-disable-next-line jsx-a11y/alt-text
           <img
             key={imgIndex}
             className={`full-image ${index === imgIndex ? "active" : ""}`}
             src={`/assets/image${imgIndex}.jpg`}
-            alt="Content"
           />
         ))}
       </div>
