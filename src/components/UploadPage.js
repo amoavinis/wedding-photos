@@ -75,26 +75,28 @@ export default function UploadPage({ callbackFn }) {
   return (
     <>
       <Modal isOpen={loading}>
-        {/* Progress bar */}
-        <div className="loading-container">
+        <>
+          {/* Progress bar */}
+          <div className="loading-container">
+            <div
+              className="loading-bar"
+              style={{
+                width: `${progress}%`,
+                backgroundColor: "green",
+              }}
+            />
+            <div className="loading-text">{Math.round(progress)}%</div>
+          </div>
           <div
-            className="loading-bar"
             style={{
-              width: `${progress}%`,
-              backgroundColor: "green",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
             }}
-          />
-          <div className="loading-text">{Math.round(progress)}%</div>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          Σας ευχαριστούμε για τις φωτογραφίες και τις ευχές!
-        </div>
+          >
+            Σας ευχαριστούμε για τις φωτογραφίες και τις ευχές!
+          </div>
+        </>
       </Modal>
       <div className="upload-container">
         <div
@@ -159,10 +161,7 @@ export default function UploadPage({ callbackFn }) {
                 </video>
               ) : (
                 // eslint-disable-next-line jsx-a11y/alt-text
-                <img
-                  src={URL.createObjectURL(file)}
-                  className="preview-img"
-                />
+                <img src={URL.createObjectURL(file)} className="preview-img" />
               )}
               {!loading && (
                 <button
