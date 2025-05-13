@@ -1,17 +1,29 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /media/{docId} {
-      // Allow reads/writes only with valid App Check token
-      allow read, write: if request.auth != null && request.app.token.valid;
+    // Function to verify both auth and App Check
+    function isRequestValid() {
+      return request.auth != null
+          && request.auth.token.firebase.sign_in_provider == 'anonymous'
+          && request.app != null;
     }
-    match /messages/{docId} {
-      // Allow reads/writes only with valid App Check token
-      allow read, write: if request.auth != null && request.app.token.valid;
+
+    // Media collection rules
+    match /media/{mediaId} {
+      allow read: if isRequestValid();
+      allow create: if isRequestValid();
     }
-    match /users/{docId} {
-      // Allow reads/writes only with valid App Check token
-      allow read, write: if request.auth != null && request.app.token.valid;
+
+    // Users collection rules
+    match /users/{userId} {
+      allow read: if isRequestValid();
+      allow create: if isRequestValid();
+    }
+
+    // Messages (wishes) collection rules
+    match /messages/{messageId} {
+      allow read: if isRequestValid();
+      allow create: if isRequestValid();
     }
   }
 }
