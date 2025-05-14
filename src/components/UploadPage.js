@@ -45,8 +45,8 @@ export default function UploadPage({ callbackFn }) {
   async function submit() {
     setLoading(true);
     await addNewUser();
-    await uploadFiles();
     await addWish();
+    await uploadFiles();
     setLoading(false);
     callbackFn();
   }

@@ -35,7 +35,7 @@ function AppContent({
   const location = useLocation();
 
   useEffect(() => {
-    if (location.pathname === "/tzotzotzia") {
+    if (location.pathname.includes("/tzotzotzia")) {
       setIsAdmin(true);
     }
   }, [location.pathname, setIsAdmin]);
