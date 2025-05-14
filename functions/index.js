@@ -1,16 +1,16 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-const express = require("express");
-const cors = require("cors");
+// const express = require("express");
+// const cors = require("cors");
 
 
 admin.initializeApp();
 
-const app = express();
+/* const app = express();
 
 app.use(cors({origin: true}));
 
-app.use(express.json());
+app.use(express.json()); */
 
 const bucket = admin.storage().bucket();
 
@@ -88,8 +88,8 @@ const createGetCollectionHandler = (collectionName) => {
       res.set("Access-Control-Allow-Origin", "*");
       res.set("Access-Control-Allow-Methods", "GET");
       res.set("Access-Control-Allow-Headers",
-          // "X-Firebase-AppCheck, Content-Type");
-          "Content-Type");
+          "X-Firebase-AppCheck, Content-Type");
+      // "Content-Type");
       res.status(204).send("");
       return;
     }
@@ -140,8 +140,8 @@ async function handleRequest(req, res, handler) {
         .set("Access-Control-Allow-Origin", "*")
         .set("Access-Control-Allow-Methods", "POST, OPTIONS")
         .set("Access-Control-Allow-Headers",
-            // "Content-Type, X-Firebase-AppCheck")
-            "Content-Type")
+            "Content-Type, X-Firebase-AppCheck")
+        // "Content-Type")
         .status(204)
         .send("");
     return;
