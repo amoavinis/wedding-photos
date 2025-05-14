@@ -1,7 +1,14 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const express = require("express");
+const cors = require("cors");
 
 admin.initializeApp();
+
+const app = express();
+
+app.use(cors({origin: true}));
+app.use(express.json());
 
 const bucket = admin.storage().bucket();
 
@@ -221,10 +228,12 @@ exports.uploadMedia = functions.https.onRequest((req, res) =>
   handleRequest(req, res, async (req) => {
     const {body} = req;
 
-    if (!body.filename || !body.type || !body.size ||
-      !body.userId || !body.username ||
-      !body.preview || !body.downloadURL) {
-      throw new Error("Missing required field");
+    const requiredFields = ["filename", "type", "size", "userId",
+      "username", "preview", "downloadURL"];
+    const missingFields = requiredFields.filter((field) => !body[field]);
+
+    if (missingFields.length > 0) {
+      throw new Error(`Missing required field(s): ${missingFields.join(", ")}`);
     }
 
     const item = {

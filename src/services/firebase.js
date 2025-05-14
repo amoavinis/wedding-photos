@@ -149,7 +149,7 @@ export async function uploadWish(wish, userId, username) {
     {
       message: wish,
       userId: userId,
-      username: username,
+      // username: username,
     }
   );
 
