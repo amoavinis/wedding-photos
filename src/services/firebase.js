@@ -8,19 +8,19 @@ import {
 } from "firebase/storage";
 import { getFirestore } from "firebase/firestore";
 import Compressor from "compressorjs";
-import {
+/* import {
   initializeAppCheck,
   ReCaptchaV3Provider,
   getToken,
-} from "firebase/app-check";
+} from "firebase/app-check"; */
 import { firebaseConfig } from "../config/config";
 
 const app = initializeApp(firebaseConfig);
 
-export const appCheck = initializeAppCheck(app, {
+/* export const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaV3Provider("6Ldq9TMrAAAAAOZ0mIXtF5TRNzntplep3QZlmYWT"),
   isTokenAutoRefreshEnabled: true,
-});
+}); */
 
 export const auth = getAuth(app);
 export const storage = getStorage(app);
@@ -33,15 +33,16 @@ export async function authenticate() {
 
 async function callFunction(url, method, body) {
   // Get AppCheck token
-  const appCheckToken = await getToken(appCheck);
+  // const appCheckToken = await getToken(appCheck);
 
   const res = await fetch(url, {
     method: method,
     headers: {
       "Content-Type": "application/json",
-      "X-Firebase-AppCheck": appCheckToken.token,
+      // "X-Firebase-AppCheck": token,
     },
     body: body ? JSON.stringify(body) : null,
+    credentials: "include",
   });
   if (!res.ok) {
     const text = await res.text();
@@ -156,51 +157,85 @@ export async function uploadWish(wish, userId, username) {
   return docRef;
 }
 
+// 1. Polyfill toBlob() if the browser lacks it
+if (!HTMLCanvasElement.prototype.toBlob) {
+  Object.defineProperty(HTMLCanvasElement.prototype, "toBlob", {
+    value: function (callback, type, quality) {
+      // Fallback via toDataURL → Blob
+      const dataURL = this.toDataURL(type, quality); // :contentReference[oaicite:0]{index=0}
+      const binStr = atob(dataURL.split(",")[1]);
+      const len = binStr.length;
+      const arr = new Uint8Array(len);
+      for (let i = 0; i < len; i++) arr[i] = binStr.charCodeAt(i);
+      callback(new Blob([arr], { type: type || "image/png" }));
+    },
+  });
+}
+
+// 2. Main compression function
 async function compressImage(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
+    const MAX_W = 400,
+      MAX_H = 400;
 
-    const max_width = 400;
-    const max_height = 400;
-
+    reader.onerror = () => reject(reader.error);
     reader.onload = (e) => {
-      const image = new Image();
-      image.src = e.target.result;
-      image.onload = (rs) => {
-        const img_height = rs.currentTarget["height"];
-        const img_width = rs.currentTarget["width"];
+      const img = new Image();
+      img.onerror = () => reject(new Error("Image load failed"));
+      img.onload = () => {
+        const { width, height } = img;
 
-        if (img_height <= max_height && img_width <= max_width) {
-          resolve(e.target.result);
+        // If already small enough, just return the original Data-URL
+        if (width <= MAX_W && height <= MAX_H) {
+          return resolve(e.target.result);
+        }
+
+        // Compute scaled dimensions
+        let newW,
+          newH,
+          ratio = width / height;
+        if (width > height) {
+          newW = MAX_W;
+          newH = MAX_W / ratio;
         } else {
-          let setBase64Fn = (x) => {
-            resolve(x);
-          };
-          let ratio = img_height / img_width;
-          let new_height =
-            img_height > img_width ? max_height : max_height * ratio;
-          let new_width =
-            img_width > img_height ? max_width : max_width / ratio;
+          newH = MAX_H;
+          newW = MAX_H * ratio;
+        }
 
+        // 3. Attempt compression
+        try {
           new Compressor(file, {
-            width: new_width,
-            height: new_height,
-            success(result) {
-              const reader2 = new FileReader();
-              reader2.onload = (e) => {
-                setBase64Fn(e.target.result);
-              };
-              reader2.readAsDataURL(result);
+            // :contentReference[oaicite:3]{index=3}
+            width: newW,
+            height: newH,
+            success(blob) {
+              const r2 = new FileReader();
+              r2.onerror = () => reject(r2.error); // :contentReference[oaicite:4]{index=4}
+              r2.onload = (ev) => resolve(ev.target.result);
+              r2.readAsDataURL(blob);
             },
             error(err) {
-              console.log(err.message);
+              // On Compressor failure, reject and fall through to catch below
+              reject(err); // :contentReference[oaicite:5]{index=5}
             },
           });
+        } catch (err) {
+          reject(err); // :contentReference[oaicite:6]{index=6}
         }
       };
+      img.src = e.target.result;
     };
-
     reader.readAsDataURL(file);
+  }).catch((err) => {
+    console.warn("Compression failed, using original Data-URL:", err);
+    // Fallback: return original file as Data-URL
+    return new Promise((res, rej) => {
+      const fr = new FileReader();
+      fr.onerror = () => rej(fr.error);
+      fr.onload = (e) => res(e.target.result);
+      fr.readAsDataURL(file);
+    });
   });
 }
 
@@ -339,24 +374,4 @@ export async function downloadWithCloudFunction(mediaItem) {
     // Fallback to direct download
     window.open(mediaItem.url, "_blank");
   }
-}
-
-export async function checkAppToken() {
-  const appCheckToken = await getToken(appCheck);
-
-  // Call Cloud Function
-  const response = await fetch(
-    "https://us-central1-wedding-photos-36c1e.cloudfunctions.net/appCheckToken",
-    {
-      headers: {
-        "X-Firebase-AppCheck": appCheckToken.token,
-      },
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error(await response.text());
-  }
-
-  return { ok: true, token: appCheckToken.token };
 }
