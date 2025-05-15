@@ -218,6 +218,7 @@ exports.uploadWish = functions.https.onRequest((req, res) =>
         .firestore()
         .collection("messages")
         .add({
+          userId: userId,
           message: message,
         });
     return {id: doc.id};
