@@ -1,26 +1,19 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInAnonymously } from "firebase/auth";
+import {
+  getAuth,
+  //, signInAnonymously
+} from "firebase/auth";
 import {
   getStorage,
   ref,
   uploadBytesResumable,
   getDownloadURL,
 } from "firebase/storage";
-import { getFirestore } from "firebase/firestore";
+import { addDoc, collection, getFirestore } from "firebase/firestore";
 import Compressor from "compressorjs";
-/* import {
-  initializeAppCheck,
-  ReCaptchaV3Provider,
-  getToken,
-} from "firebase/app-check"; */
 import { firebaseConfig } from "../config/config";
 
 const app = initializeApp(firebaseConfig);
-
-/* export const appCheck = initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider("6Ldq9TMrAAAAAOZ0mIXtF5TRNzntplep3QZlmYWT"),
-  isTokenAutoRefreshEnabled: true,
-}); */
 
 export const auth = getAuth(app);
 export const storage = getStorage(app);
@@ -52,13 +45,13 @@ async function callFunction(url, method, body) {
 }
 
 export async function fetchPhotos() {
-  // await authenticate();
+  await authenticate();
 
-  const auth = getAuth();
+  const auth = getAuth(app);
   const user = auth.currentUser;
 
   if (!user) {
-    // throw new Error("User must be logged in to view media");
+    throw new Error("User must be logged in to view media");
   }
 
   const media = await callFunction(
@@ -71,13 +64,13 @@ export async function fetchPhotos() {
 }
 
 export async function getUserFolders() {
-  // await authenticate();
+  await authenticate();
 
-  const auth = getAuth();
+  const auth = getAuth(app);
   const user = auth.currentUser;
 
   if (!user) {
-    // throw new Error("User must be logged in to view folders");
+    throw new Error("User must be logged in to view folders");
   }
 
   // 1. Get all users
@@ -116,43 +109,35 @@ export async function getUserFolders() {
 }
 
 export async function uploadUser(username) {
-  // await authenticate();
+  await authenticate();
 
-  const auth = getAuth();
+  const auth = getAuth(app);
   const user = auth.currentUser;
 
   if (!user) {
-    // throw new Error("User must be logged in to upload user info");
+    throw new Error("User must be logged in to upload user info");
   }
 
-  const docRef = await callFunction(
-    "https://us-central1-wedding-photos-36c1e.cloudfunctions.net/uploadUser",
-    "POST",
-    { username: username }
-  );
+  const docRef = await addDoc(collection(db, "users"), { name: username });
 
   return docRef;
 }
 
 export async function uploadWish(wish, userId, username) {
-  // await authenticate();
+  await authenticate();
 
-  const auth = getAuth();
+  const auth = getAuth(app);
   const user = auth.currentUser;
 
   if (!user) {
-    // throw new Error("User must be logged in to upload wish");
+    throw new Error("User must be logged in to upload wish");
   }
 
-  const docRef = await callFunction(
-    "https://us-central1-wedding-photos-36c1e.cloudfunctions.net/uploadWish",
-    "POST",
-    {
-      message: wish,
-      userId: userId,
-      username: username,
-    }
-  );
+  const docRef = await addDoc(collection(db, "messages"), {
+    message: wish,
+    userId: userId,
+    username: username,
+  });
 
   return docRef;
 }
@@ -270,13 +255,13 @@ async function extractFirstFrame(videoFile) {
 }
 
 export async function uploadMediaBatch(files, userId, username, progressCb) {
-  // await authenticate();
+  await authenticate();
 
-  const auth = getAuth();
+  const auth = getAuth(app);
   const user = auth.currentUser;
 
   if (!user) {
-    // throw new Error("User must be logged in to upload photos");
+    throw new Error("User must be logged in to upload photos");
   }
 
   const storage = getStorage();
@@ -333,11 +318,7 @@ export async function uploadMediaBatch(files, userId, username, progressCb) {
               downloadURL: downloadURL,
             };
 
-            const response = await callFunction(
-              "https://us-central1-wedding-photos-36c1e.cloudfunctions.net/uploadMedia",
-              "POST",
-              data
-            );
+            const response = await addDoc(collection(db, "media"), data);
 
             resolve({ id: response.id, ...data });
           }
