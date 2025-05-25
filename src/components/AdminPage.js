@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlay, faFolder } from "@fortawesome/free-solid-svg-icons";
 import ViewSelectedMedia from "../components/ViewSelectedMedia";
 import UserSelector from "../components/UserSelector";
-import { fetchPhotos, getUserFolders } from "../services/firebase";
+import { fetchPhotos, getUserFolders, getUserPhotos, getUserWishes } from "../services/firebase";
 import "../css/Admin.css";
 
 export default function AdminPage() {
@@ -18,6 +18,8 @@ export default function AdminPage() {
   const [openedWish, setOpenedWish] = useState(0);
   const hasFetchedMedia = useRef(false);
   const hasFetchedFolders = useRef(false);
+  const [folderMedia, setFolderMedia] = useState([]);
+  const [folderWishes, setFolderWishes] = useState([]);
 
   useEffect(() => {
     const run = async () => {
@@ -76,7 +78,15 @@ export default function AdminPage() {
   }
 
   function onClickFolder(folder) {
+    setFolderMedia([]);
+    setFolderWishes([]);
     setOpenFolder(folder);
+    getUserPhotos(folder.id).then((media) => {
+      setFolderMedia(media);
+    });
+    getUserWishes(folder.id).then((wishes) => {
+      setFolderWishes(wishes);
+    })
   }
 
   function onCloseFolder() {
@@ -198,7 +208,7 @@ export default function AdminPage() {
           </div>
 
           <div className="folder-photos">
-            {openFolder.media.map((media, index) => (
+            {folderMedia.map((media, index) => (
               <div
                 key={index}
                 onClick={() => openMediaModal(media)}
@@ -247,7 +257,7 @@ export default function AdminPage() {
               </div>
             </div>
             <div className="wish-inner-container">
-              <span>{openFolder.wishes?.[openedWish]?.message}</span>
+              <span>{folderWishes?.[openedWish]?.message}</span>
             </div>
           </div>
         </div>

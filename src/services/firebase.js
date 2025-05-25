@@ -1,15 +1,19 @@
 import { initializeApp } from "firebase/app";
-import {
-  getAuth,
-  signInAnonymously
-} from "firebase/auth";
+import { getAuth, signInAnonymously } from "firebase/auth";
 import {
   getStorage,
   ref,
   uploadBytesResumable,
   getDownloadURL,
 } from "firebase/storage";
-import { addDoc, collection, getFirestore } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  getFirestore,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import Compressor from "compressorjs";
 import { firebaseConfig } from "../config/config";
 
@@ -24,26 +28,6 @@ export async function authenticate() {
   await signInAnonymously(auth);
 }
 
-async function callFunction(url, method, body) {
-  // Get AppCheck token
-  // const appCheckToken = await getToken(appCheck);
-
-  const res = await fetch(url, {
-    method: method,
-    headers: {
-      "Content-Type": "application/json",
-      // "X-Firebase-AppCheck": token,
-    },
-    body: body ? JSON.stringify(body) : null,
-    credentials: "include",
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Error ${res.status}: ${text}`);
-  }
-  return res.json();
-}
-
 export async function fetchPhotos() {
   await authenticate();
 
@@ -54,11 +38,9 @@ export async function fetchPhotos() {
     throw new Error("User must be logged in to view media");
   }
 
-  const media = await callFunction(
-    "https://us-central1-wedding-photos-36c1e.cloudfunctions.net/getMedia",
-    "GET",
-    null
-  );
+  const mediaRef = await getDocs(collection(db, "media"));
+
+  const media = mediaRef.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
   return media;
 }
@@ -73,39 +55,23 @@ export async function getUserFolders() {
     throw new Error("User must be logged in to view folders");
   }
 
-  // 1. Get all users
-  const users = await callFunction(
-    "https://us-central1-wedding-photos-36c1e.cloudfunctions.net/getUsers",
-    "GET",
-    null
-  );
+  const usersRef = await getDocs(collection(db, "users"));
 
-  // 2. Get all posts
-  const media = await callFunction(
-    "https://us-central1-wedding-photos-36c1e.cloudfunctions.net/getMedia",
-    "GET",
-    null
-  );
+  const users = usersRef.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-  // 3. Get all wishes
-  const wishes = await callFunction(
-    "https://us-central1-wedding-photos-36c1e.cloudfunctions.net/getWishes",
-    "GET",
-    null
-  );
+  return users;
+}
 
-  // 4. Combine them
-  const folders = users.map((user) => ({
-    ...user,
-    media: media.filter(
-      (m) => m.userId === user.id || (!m.userId && m.username === user.name)
-    ),
-    wishes: wishes.filter(
-      (w) => w.userId === user.id || (!w.userId && w.username === user.name)
-    ),
-  }));
+export async function getUserPhotos(userId) {
+  const q = query(collection(db, "media"), where("userId", "==", userId));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+}
 
-  return folders;
+export async function getUserWishes(userId) {
+  const q = query(collection(db, "messages"), where("userId", "==", userId));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 }
 
 export async function uploadUser(username) {
