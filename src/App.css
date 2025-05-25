@@ -6,6 +6,14 @@
   height: 85dvh;
 }
 
+.main-body {
+  height: 100dvh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
 .header {
   width: 100vw;
   background-color: #dea193;
@@ -13,6 +21,17 @@
   display: flex;
   flex-direction: row;
   align-items: center;
+}
+
+.transparent-header {
+  width: 100vw;
+  background-color: rgb(100, 100, 100, 0.5);
+  height: 15dvh;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: absolute;
+  z-index: 1000;
 }
 
 .title-box {
@@ -25,11 +44,12 @@
 .title {
   font-size: 30px;
   color: white;
+  font-style: italic;
 }
 
 @media only screen and (max-width: 600px) {
   .title {
-    font-size: 16px;
+    font-size: 18px;
     color: white;
   }
 }
@@ -43,14 +63,14 @@
 }
 
 .open-modal-button {
-  background-color: #e3aa7e;
+  background-color: #fff;
   border: none;
   border-radius: 10px;
-  color: white;
+  color: #dea193;
   width: 100%;
-  height: calc(100% - 40px);
   cursor: pointer;
   margin: 20px;
+  padding: 8px;
 }
 
 textarea,
@@ -59,5 +79,4 @@ button,
 div,
 span {
   font-family: "LXGW WenKai TC", cursive !important;
-  font-style: italic;
 }

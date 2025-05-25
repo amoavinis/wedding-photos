@@ -62,7 +62,7 @@ function AppContent({
 
   return (
     <div className="h-100">
-      <div className="header">
+      <div className={showUploadScreen ? "" : isAdmin ? "header" : "transparent-header"}>
         <div style={{ width: "20%" }}></div>
         <div className="title-box">
           <span className="title">{displayedTitle}</span>
@@ -79,7 +79,7 @@ function AppContent({
         ) : null}
       </div>
 
-      <div className="h-85">
+      <div className={isAdmin ? "h-85" : "main-body"}>
         <Routes>
           <Route
             path="/"
