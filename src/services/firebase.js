@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import {
   getAuth,
-  //, signInAnonymously
+  signInAnonymously
 } from "firebase/auth";
 import {
   getStorage,
@@ -21,7 +21,7 @@ export const db = getFirestore(app);
 
 // Authentication helper
 export async function authenticate() {
-  // await signInAnonymously(auth);
+  await signInAnonymously(auth);
 }
 
 async function callFunction(url, method, body) {

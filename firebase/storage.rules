@@ -9,8 +9,7 @@ service firebase.storage {
 
     // Media folder rules (matches your Firestore pattern)
     match /media/{allPaths=**} {
-      allow read: if isRequestValid();
-      allow write: if isRequestValid();
+      allow read, write: if isRequestValid();
     }
   }
 }

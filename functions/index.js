@@ -51,6 +51,11 @@ exports.downloadFile = functions.https.onRequest(async (req, res) => {
   }
 });
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://wedding-photos-36c1e.web.app/",
+];
+
 /**
  * Verifies the validity of a token.
  * @param {string} collectionName - The collection name.
@@ -58,18 +63,27 @@ exports.downloadFile = functions.https.onRequest(async (req, res) => {
  */
 const createGetCollectionHandler = (collectionName) => {
   return functions.https.onRequest(async (req, res) => {
+    const origin = req.headers.origin;
     // Handle CORS preflight
     if (req.method === "OPTIONS") {
-      res.set("Access-Control-Allow-Origin", "*");
-      res.set("Access-Control-Allow-Methods", "GET");
-      res.set("Access-Control-Allow-Headers", "Content-Type");
-      // "Content-Type");
-      res.status(204).send("");
-      return;
+      if (allowedOrigins.includes(origin)) {
+        res.set("Access-Control-Allow-Origin", origin);
+        res.set("Access-Control-Allow-Methods", "GET");
+        res.set("Access-Control-Allow-Credentials", "true");
+        res.set("Access-Control-Allow-Headers", "Content-Type");
+        res.status(204).send("");
+        return;
+      } else {
+        res.status(403).send("Origin not allowed");
+        return;
+      }
     }
 
     // Handle actual request
-    res.set("Access-Control-Allow-Origin", "*");
+    if (allowedOrigins.includes(origin)) {
+      res.set("Access-Control-Allow-Origin", origin);
+      res.set("Access-Control-Allow-Credentials", "true");
+    }
 
     try {
       const snapshot = await admin.firestore().collection(collectionName).get();

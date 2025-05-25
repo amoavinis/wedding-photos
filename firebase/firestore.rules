@@ -1,7 +1,7 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Function to verify both auth and App Check
+    // Function to verify auth
     function isRequestValid() {
       return request.auth != null
           && request.auth.token.firebase.sign_in_provider == 'anonymous';
@@ -9,20 +9,17 @@ service cloud.firestore {
 
     // Media collection rules
     match /media/{mediaId} {
-      allow read: if isRequestValid();
-      allow create: if isRequestValid();
+      allow read, write: if isRequestValid();
     }
 
     // Users collection rules
     match /users/{userId} {
-      allow read: if isRequestValid();
-      allow create: if isRequestValid();
+      allow read, write: if isRequestValid();
     }
 
     // Messages (wishes) collection rules
     match /messages/{messageId} {
-      allow read: if isRequestValid();
-      allow create: if isRequestValid();
+      allow read, write: if isRequestValid();
     }
   }
 }
