@@ -137,6 +137,7 @@ exports.uploadWish = functions.https.onRequest((req, res) =>
     }
     const doc = await admin.firestore().collection("messages").add({
       message: message,
+      userId: userId
     });
     return {id: doc.id};
   }),
