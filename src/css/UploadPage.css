@@ -71,7 +71,7 @@ img,
   height: calc(100% - 315px);
   gap: 10px;
   margin: 20px 0;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .preview-item {
