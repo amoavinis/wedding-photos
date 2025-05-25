@@ -53,7 +53,7 @@ exports.downloadFile = functions.https.onRequest(async (req, res) => {
 
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://wedding-photos-36c1e.web.app/",
+  "https://wedding-photos-36c1e.web.app",
 ];
 
 /**
