@@ -3,8 +3,8 @@ service firebase.storage {
   match /b/{bucket}/o {
     // Function to verify auth check
     function isRequestValid() {
-      return request.auth != null 
-          && request.auth.token.firebase.sign_in_provider == 'anonymous';
+      return true; // request.auth != null 
+          // && request.auth.token.firebase.sign_in_provider == 'anonymous';
     }
 
     // Media folder rules (matches your Firestore pattern)

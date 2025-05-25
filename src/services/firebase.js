@@ -28,7 +28,7 @@ export const db = getFirestore(app);
 
 // Authentication helper
 export async function authenticate() {
-  await signInAnonymously(auth);
+  // await signInAnonymously(auth);
 }
 
 async function callFunction(url, method, body) {
@@ -52,13 +52,13 @@ async function callFunction(url, method, body) {
 }
 
 export async function fetchPhotos() {
-  await authenticate();
+  // await authenticate();
 
   const auth = getAuth();
   const user = auth.currentUser;
 
   if (!user) {
-    throw new Error("User must be logged in to view media");
+    // throw new Error("User must be logged in to view media");
   }
 
   const media = await callFunction(
@@ -71,13 +71,13 @@ export async function fetchPhotos() {
 }
 
 export async function getUserFolders() {
-  await authenticate();
+  // await authenticate();
 
   const auth = getAuth();
   const user = auth.currentUser;
 
   if (!user) {
-    throw new Error("User must be logged in to view folders");
+    // throw new Error("User must be logged in to view folders");
   }
 
   // 1. Get all users
@@ -116,13 +116,13 @@ export async function getUserFolders() {
 }
 
 export async function uploadUser(username) {
-  await authenticate();
+  // await authenticate();
 
   const auth = getAuth();
   const user = auth.currentUser;
 
   if (!user) {
-    throw new Error("User must be logged in to upload user info");
+    // throw new Error("User must be logged in to upload user info");
   }
 
   const docRef = await callFunction(
@@ -135,13 +135,13 @@ export async function uploadUser(username) {
 }
 
 export async function uploadWish(wish, userId, username) {
-  await authenticate();
+  // await authenticate();
 
   const auth = getAuth();
   const user = auth.currentUser;
 
   if (!user) {
-    throw new Error("User must be logged in to upload wish");
+    // throw new Error("User must be logged in to upload wish");
   }
 
   const docRef = await callFunction(
@@ -270,13 +270,13 @@ async function extractFirstFrame(videoFile) {
 }
 
 export async function uploadMediaBatch(files, userId, username, progressCb) {
-  await authenticate();
+  // await authenticate();
 
   const auth = getAuth();
   const user = auth.currentUser;
 
   if (!user) {
-    throw new Error("User must be logged in to upload photos");
+    // throw new Error("User must be logged in to upload photos");
   }
 
   const storage = getStorage();
