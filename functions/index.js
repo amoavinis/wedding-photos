@@ -33,18 +33,18 @@ exports.downloadFile = functions.https.onRequest(async (req, res) => {
     // Set headers to force download
     res.set("Content-Type", metadata.contentType || "application/octet-stream");
     res.set(
-      "Content-Disposition",
-      `attachment; filename="${filePath.replace(/^media_\//, "")}"`
+        "Content-Disposition",
+        `attachment; filename="${filePath.replace(/^media_\//, "")}"`,
     );
 
     // Stream the file to the response
     file
-      .createReadStream()
-      .on("error", (error) => {
-        console.error("Stream error:", error);
-        res.status(500).end();
-      })
-      .pipe(res);
+        .createReadStream()
+        .on("error", (error) => {
+          console.error("Stream error:", error);
+          res.status(500).end();
+        })
+        .pipe(res);
   } catch (error) {
     console.error("Download error:", error);
     res.status(500).send("Download failed");
@@ -73,7 +73,7 @@ const createGetCollectionHandler = (collectionName) => {
 
     try {
       const snapshot = await admin.firestore().collection(collectionName).get();
-      const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const data = snapshot.docs.map((doc) => ({id: doc.id, ...doc.data()}));
       res.json(data);
     } catch (err) {
       console.error(`Error fetching ${collectionName}:`, err);
@@ -99,12 +99,11 @@ async function handleRequest(req, res, handler) {
   // CORS preflight
   if (req.method === "OPTIONS") {
     res
-      .set("Access-Control-Allow-Origin", "*")
-      .set("Access-Control-Allow-Methods", "POST, OPTIONS")
-      .set("Access-Control-Allow-Headers", "Content-Type")
-      // "Content-Type")
-      .status(204)
-      .send("");
+        .set("Access-Control-Allow-Origin", "*")
+        .set("Access-Control-Allow-Methods", "POST, OPTIONS")
+        .set("Access-Control-Allow-Headers", "Content-Type")
+        .status(204)
+        .send("");
     return;
   }
   res.set("Access-Control-Allow-Origin", "*");
@@ -120,32 +119,32 @@ async function handleRequest(req, res, handler) {
 
 exports.uploadUser = functions.https.onRequest((req, res) =>
   handleRequest(req, res, async (req) => {
-    const { username } = req.body;
+    const {username} = req.body;
     if (!username) throw new Error("username required");
 
     const doc = await admin.firestore().collection("users").add({
       name: username,
     });
-    return { id: doc.id };
-  })
+    return {id: doc.id};
+  }),
 );
 
 exports.uploadWish = functions.https.onRequest((req, res) =>
   handleRequest(req, res, async (req) => {
-    const { message, userId } = req.body;
+    const {message, userId} = req.body;
     if (!userId) {
       throw new Error("wish + userId required");
     }
     const doc = await admin.firestore().collection("messages").add({
       message: message,
     });
-    return { id: doc.id };
-  })
+    return {id: doc.id};
+  }),
 );
 
 exports.uploadMedia = functions.https.onRequest((req, res) =>
   handleRequest(req, res, async (req) => {
-    const { body } = req;
+    const {body} = req;
 
     const requiredFields = [
       "filename",
@@ -175,6 +174,6 @@ exports.uploadMedia = functions.https.onRequest((req, res) =>
 
     const doc = await admin.firestore().collection("media").add(item);
 
-    return { success: true, result: doc };
-  })
+    return {success: true, result: doc};
+  }),
 );
