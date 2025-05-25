@@ -8,7 +8,7 @@
 
 .header {
   width: 100vw;
-  background-color: #efd6ad;
+  background-color: #dea193;
   height: 15dvh;
   display: flex;
   flex-direction: row;
@@ -51,4 +51,13 @@
   height: calc(100% - 40px);
   cursor: pointer;
   margin: 20px;
+}
+
+textarea,
+input,
+button,
+div,
+span {
+  font-family: "LXGW WenKai TC", cursive !important;
+  font-style: italic;
 }

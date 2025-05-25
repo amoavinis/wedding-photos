@@ -136,3 +136,7 @@ img,
   color: #333;
   font-weight: bold;
 }
+
+textarea, input {
+  font-size: 14px;
+}

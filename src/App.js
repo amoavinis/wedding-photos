@@ -33,6 +33,9 @@ function AppContent({
   setIsAdmin,
 }) {
   const location = useLocation();
+  const [displayedTitle, setDisplayedTitle] = useState("");
+  const fullTitle = "Καλώς ήρθατε στο γάμο μας!";
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     if (location.pathname.includes("/tzotzotzia")) {
@@ -40,12 +43,29 @@ function AppContent({
     }
   }, [location.pathname, setIsAdmin]);
 
+  useEffect(() => {
+    if (currentIndex < fullTitle.length) {
+      const timeout = setTimeout(() => {
+        setDisplayedTitle(prev => prev + fullTitle[currentIndex]);
+        setCurrentIndex(prev => prev + 1);
+      }, 100); // Adjust speed here (100ms per character)
+
+      return () => clearTimeout(timeout);
+    }
+  }, [currentIndex, fullTitle]);
+
+  // Reset animation when navigating away and back
+  useEffect(() => {
+    setDisplayedTitle("");
+    setCurrentIndex(0);
+  }, [location.pathname]);
+
   return (
     <div className="h-100">
       <div className="header">
         <div style={{ width: "20%" }}></div>
         <div className="title-box">
-          <span className="title">Καλώς ήρθατε στο γάμο μας!</span>
+          <span className="title">{displayedTitle}</span>
         </div>
         {!showUploadScreen && !isAdmin ? (
           <div className="open-modal-box">

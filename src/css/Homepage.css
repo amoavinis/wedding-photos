@@ -35,6 +35,14 @@ img {
   transition: opacity 1s ease-in-out;
 }
 
+@media only screen and (max-width: 767px) and (orientation: portrait) {
+  /* CSS rules for mobile portrait mode */
+  .full-image {
+    width: 100%;
+    height: auto;
+  }
+}
+
 .full-image.active {
   opacity: 1;
 }
