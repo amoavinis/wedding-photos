@@ -44,8 +44,10 @@ export default function UploadPage({ callbackFn }) {
 
   async function submit() {
     setLoading(true);
-    await addNewUser();
-    await addWish();
+
+    let u_id = await addNewUser();
+
+    await addWish(u_id);
     await uploadFiles();
     setLoading(false);
     callbackFn();
@@ -57,15 +59,17 @@ export default function UploadPage({ callbackFn }) {
       let userObj = { id: res.id, name: username };
       localStorage.setItem("userLoggedIn", JSON.stringify(userObj));
       setUserId(res.id);
+      return res.id;
     }
+    return userId;
   }
 
   async function uploadFiles() {
     await uploadMediaBatch(selectedFiles, userId, username, updateLoadingBar);
   }
 
-  async function addWish() {
-    await uploadWish(wish, userId, username);
+  async function addWish(u_id) {
+    await uploadWish(wish, u_id, username);
   }
 
   function updateLoadingBar(value) {
