@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { uploadUser, uploadMediaBatch, uploadWish } from "../services/firebase";
 import "../css/UploadPage.css";
 import Modal from "./Modal";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlay } from "@fortawesome/free-solid-svg-icons";
 
 export default function UploadPage({ callbackFn }) {
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -10,6 +12,7 @@ export default function UploadPage({ callbackFn }) {
   const [wish, setWish] = useState("");
   const [progress, setProgress] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [selectedMedia, setSelectedMedia] = useState(null);
 
   useEffect(() => {
     let user = getUserLoggedIn();
@@ -76,8 +79,17 @@ export default function UploadPage({ callbackFn }) {
     setProgress(value);
   }
 
+  function openMediaModal(file, index) {
+    setSelectedMedia({ file, index, url: URL.createObjectURL(file) });
+  }
+
+  function closeMediaModal() {
+    setSelectedMedia(null);
+  }
+
   return (
     <>
+      {/* Loading Modal */}
       <Modal isOpen={loading}>
         <>
           {/* Progress bar */}
@@ -102,6 +114,33 @@ export default function UploadPage({ callbackFn }) {
           </div>
         </>
       </Modal>
+
+      {/* Media Preview Modal */}
+      {selectedMedia && (
+        <Modal isOpen={true} onClose={closeMediaModal}>
+          <div>
+            {selectedMedia.file.type.startsWith("video") ? (
+              <video
+                controls
+                autoPlay
+                style={{ maxWidth: "100%", maxHeight: "100%" }}
+              >
+                <source
+                  src={selectedMedia.url}
+                  type={selectedMedia.file.type}
+                />
+              </video>
+            ) : (
+              // eslint-disable-next-line jsx-a11y/alt-text
+              <img
+                src={selectedMedia.url}
+                style={{ height: "80vh", width: "auto" }}
+              />
+            )}
+          </div>
+        </Modal>
+      )}
+
       <div className="upload-container">
         <div
           style={{
@@ -155,14 +194,26 @@ export default function UploadPage({ callbackFn }) {
         {/* View selected files */}
         <div className="preview-container">
           {selectedFiles.map((file, index) => (
-            <div key={index} className="preview-item">
+            <div
+              key={index}
+              className="preview-item"
+              onClick={() => openMediaModal(file, index)}
+              style={{ cursor: "pointer" }}
+            >
               {file.type.startsWith("video") ? (
-                <video width="100%" controls="controls" preload="metadata">
-                  <source
-                    src={URL.createObjectURL(file)}
-                    type="video/mp4"
-                  ></source>
-                </video>
+                <>
+                  <video className="preview-img" preload="metadata">
+                    <source src={URL.createObjectURL(file)} type="video/mp4" />
+                  </video>
+                  <div className="video-player-play-container-upload">
+                    <div className="video-player-play-circle">
+                      <FontAwesomeIcon
+                        icon={faPlay}
+                        style={{ color: "white", fontSize: "40px" }}
+                      />
+                    </div>
+                  </div>
+                </>
               ) : (
                 // eslint-disable-next-line jsx-a11y/alt-text
                 <img src={URL.createObjectURL(file)} className="preview-img" />
@@ -170,7 +221,10 @@ export default function UploadPage({ callbackFn }) {
               {!loading && (
                 <button
                   className="remove-btn"
-                  onClick={() => removeFile(index)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeFile(index);
+                  }}
                 >
                   X
                 </button>
