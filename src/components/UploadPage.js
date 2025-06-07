@@ -13,6 +13,7 @@ export default function UploadPage({ callbackFn }) {
   const [progress, setProgress] = useState(0);
   const [loading, setLoading] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState(null);
+  const [showThankYou, setShowThankYou] = useState(false);
 
   useEffect(() => {
     let user = getUserLoggedIn();
@@ -53,7 +54,14 @@ export default function UploadPage({ callbackFn }) {
     await addWish(u_id);
     await uploadFiles();
     setLoading(false);
-    callbackFn();
+
+    setShowThankYou(true); // Show thank you modal
+
+    // Auto-close after 5 seconds and execute callback
+    setTimeout(() => {
+      setShowThankYou(false);
+      callbackFn();
+    }, 5000);
   }
 
   async function addNewUser() {
@@ -110,9 +118,25 @@ export default function UploadPage({ callbackFn }) {
               alignItems: "center",
             }}
           >
-            Σας ευχαριστούμε για τις φωτογραφίες και τις ευχές!
+            Οι φωτογραφίες και οι ευχές ανεβαίνουν, παρακαλώ περιμένετε...
           </div>
         </>
+      </Modal>
+
+      {/* Thank You Modal */}
+      <Modal
+        isOpen={showThankYou}
+        onClose={() => {
+          setShowThankYou(false);
+          callbackFn();
+        }}
+      >
+        <div className="thank-you-modal">
+          <div className="thank-you-icon">✓</div>
+          <h2>Σας ευχαριστούμε για τις φωτογραφίες και τις ευχές!</h2>
+          <p>Οι φωτογραφίες και οι ευχές σας έχουν αποσταλεί με επιτυχία.</p>
+          <p>Αυτό το παράθυρο θα κλείσει αυτόματα...</p>
+        </div>
       </Modal>
 
       {/* Media Preview Modal */}

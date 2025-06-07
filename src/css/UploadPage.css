@@ -150,7 +150,8 @@ img,
   font-weight: bold;
 }
 
-textarea, input {
+textarea,
+input {
   font-size: 14px;
 }
 
@@ -189,4 +190,34 @@ textarea, input {
   margin-top: 10px;
   font-size: 0.9rem;
   color: #6c757d;
+}
+
+.thank-you-modal {
+  text-align: center;
+  padding: 30px;
+  max-width: 400px;
+}
+
+.thank-you-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  background-color: #4caf50;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 40px;
+  font-weight: bold;
+}
+
+.thank-you-modal h2 {
+  color: #4caf50;
+  margin-bottom: 15px;
+}
+
+.thank-you-modal p {
+  margin-bottom: 10px;
+  color: #555;
 }
