@@ -68,10 +68,10 @@ img,
 .preview-container {
   display: flex;
   flex-wrap: wrap;
-  height: calc(100% - 315px);
   gap: 10px;
   margin: 20px 0;
   overflow-y: auto;
+  flex: 1;
 }
 
 .preview-item {
@@ -152,4 +152,41 @@ img,
 
 textarea, input {
   font-size: 14px;
+}
+
+.instructions-box {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  color: #495057;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.instructions-box h3 {
+  margin-top: 0;
+  color: #dea193;
+  font-size: 1.2rem;
+  margin-bottom: 0;
+}
+
+.instructions-box ol {
+  padding-left: 20px;
+  width: max-content;
+  list-style-position: outside;
+}
+
+.instructions-box li {
+  margin-bottom: 8px;
+  padding-left: 1em;
+  width: max-content;
+}
+
+.instructions-box .note {
+  font-style: italic;
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #6c757d;
 }
