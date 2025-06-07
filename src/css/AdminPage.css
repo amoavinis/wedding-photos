@@ -30,8 +30,16 @@ img,
 
 .preview-item {
   position: relative;
-  width: calc(20% - 10px);
-  height: fit-content;
+  width: calc(25% - 10px);
+  aspect-ratio: 1/1;
+}
+
+@media only screen and (max-width: 600px) {
+  .preview-item {
+    position: relative;
+    width: calc(33.3% - 10px) !important;
+    aspect-ratio: 1/1;
+  }
 }
 
 .video-player-play-container {

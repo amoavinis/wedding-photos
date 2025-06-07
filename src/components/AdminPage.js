@@ -5,7 +5,7 @@ import { faPlay, faFolder } from "@fortawesome/free-solid-svg-icons";
 import ViewSelectedMedia from "../components/ViewSelectedMedia";
 import UserSelector from "../components/UserSelector";
 import { fetchPhotos, getUserFolders, getUserPhotos, getUserWishes } from "../services/firebase";
-import "../css/Admin.css";
+import "../css/AdminPage.css";
 
 export default function AdminPage() {
   const [mediaList, setMediaList] = useState([]);
@@ -94,21 +94,21 @@ export default function AdminPage() {
   }
 
   function navigateWishes(nextOrPrevious) {
-    if (!openFolder.wishes.length) {
+    if (!folderWishes?.length) {
       return;
     }
 
     let nextIndex = openedWish;
     if (nextOrPrevious === "next") {
-      nextIndex = (nextIndex + 1) % openFolder.wishes.length;
+      nextIndex = (nextIndex + 1) % folderWishes.length;
     } else if (nextOrPrevious === "previous") {
-      nextIndex = (nextIndex - 1) % openFolder.wishes.length;
+      nextIndex = (nextIndex - 1) % folderWishes.length;
     }
     setOpenedWish(nextIndex);
   }
 
   function disabledButtons() {
-    return openFolder.wishes?.length <= 1;
+    return folderWishes?.length <= 1;
   }
 
   return (
