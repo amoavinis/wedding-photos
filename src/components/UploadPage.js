@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { uploadUser, uploadMediaBatch, uploadWish } from "../services/firebase";
 import "../css/UploadPage.css";
 import Modal from "./Modal";
@@ -30,7 +30,7 @@ export default function UploadPage({ callbackFn }) {
     }
   }
 
-  function openFileDialog() {
+  const openFileDialog = useCallback(() => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*,video/*";
@@ -40,11 +40,11 @@ export default function UploadPage({ callbackFn }) {
       setSelectedFiles([...selectedFiles, ...files]);
     };
     input.click();
-  }
+  }, [selectedFiles]);
 
-  function removeFile(index) {
+  const removeFile = useCallback((index) => {
     setSelectedFiles(selectedFiles.filter((_, i) => i !== index));
-  }
+  }, [selectedFiles]);
 
   async function submit() {
     setLoading(true);
@@ -87,13 +87,58 @@ export default function UploadPage({ callbackFn }) {
     setProgress(value);
   }
 
-  function openMediaModal(file, index) {
+  const openMediaModal = useCallback((file, index) => {
     setSelectedMedia({ file, index, url: URL.createObjectURL(file) });
-  }
+  }, []);
 
   function closeMediaModal() {
     setSelectedMedia(null);
   }
+
+  const filePreviews = useMemo(() => {
+    return selectedFiles.map((file, index) => {
+      const url = URL.createObjectURL(file);
+
+      const isVideo = file.type.startsWith("video");
+
+      const preview = (
+        <div
+          key={index}
+          className="preview-item"
+          onClick={() => openMediaModal(file, index)}
+          style={{ cursor: "pointer" }}
+        >
+          {isVideo ? (
+            <>
+              <video className="preview-img" preload="metadata">
+                <source src={url} type="video/mp4" />
+              </video>
+              <div className="video-player-play-container-upload">
+                <div className="video-player-play-circle-1">
+                  <FontAwesomeIcon icon={faPlay} className="play-icon" />
+                </div>
+              </div>
+            </>
+          ) : (
+            <img src={url} className="preview-img" alt="preview" />
+          )}
+          {!loading && (
+            <button
+              className="remove-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                removeFile(index);
+              }}
+            >
+              X
+            </button>
+          )}
+        </div>
+      );
+
+      return preview;
+    });
+  }, [selectedFiles, loading, removeFile, openMediaModal]);
 
   return (
     <>
@@ -116,7 +161,7 @@ export default function UploadPage({ callbackFn }) {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              fontSize: "0.9rem"
+              fontSize: "0.9rem",
             }}
           >
             Οι φωτογραφίες και οι ευχές ανεβαίνουν, παρακαλώ περιμένετε...
@@ -236,41 +281,7 @@ export default function UploadPage({ callbackFn }) {
 
         {/* View selected files */}
         <div className="preview-container">
-          {selectedFiles.map((file, index) => (
-            <div
-              key={index}
-              className="preview-item"
-              onClick={() => openMediaModal(file, index)}
-              style={{ cursor: "pointer" }}
-            >
-              {file.type.startsWith("video") ? (
-                <>
-                  <video className="preview-img" preload="metadata">
-                    <source src={URL.createObjectURL(file)} type="video/mp4" />
-                  </video>
-                  <div className="video-player-play-container-upload">
-                    <div className="video-player-play-circle-1">
-                      <FontAwesomeIcon icon={faPlay} className="play-icon" />
-                    </div>
-                  </div>
-                </>
-              ) : (
-                // eslint-disable-next-line jsx-a11y/alt-text
-                <img src={URL.createObjectURL(file)} className="preview-img" />
-              )}
-              {!loading && (
-                <button
-                  className="remove-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeFile(index);
-                  }}
-                >
-                  X
-                </button>
-              )}
-            </div>
-          ))}
+          {filePreviews}
         </div>
         {/* Insert wish */}
         <div
