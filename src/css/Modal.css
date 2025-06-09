@@ -29,6 +29,13 @@
   z-index: 1001;
 }
 
+@media only screen and (max-width: 600px) {
+  .modal-content {
+    max-width: 70vw;
+    max-height: 70vh;
+  }
+}
+
 .modal-close {
   position: absolute;
   top: 10px;

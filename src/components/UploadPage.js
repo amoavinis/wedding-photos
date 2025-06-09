@@ -99,7 +99,7 @@ export default function UploadPage({ callbackFn }) {
     <>
       {/* Loading Modal */}
       <Modal isOpen={loading}>
-        <>
+        <div>
           {/* Progress bar */}
           <div className="loading-container">
             <div
@@ -116,11 +116,12 @@ export default function UploadPage({ callbackFn }) {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
+              fontSize: "0.9rem"
             }}
           >
             Οι φωτογραφίες και οι ευχές ανεβαίνουν, παρακαλώ περιμένετε...
           </div>
-        </>
+        </div>
       </Modal>
 
       {/* Thank You Modal */}
@@ -156,10 +157,7 @@ export default function UploadPage({ callbackFn }) {
               </video>
             ) : (
               // eslint-disable-next-line jsx-a11y/alt-text
-              <img
-                src={selectedMedia.url}
-                style={{ height: "80vh", width: "auto" }}
-              />
+              <img src={selectedMedia.url} />
             )}
           </div>
         </Modal>
@@ -168,15 +166,21 @@ export default function UploadPage({ callbackFn }) {
       <div className="upload-container">
         <div className="instructions-box">
           <h3>Οδηγίες Ανέβασματος:</h3>
-          <ol>
-            <li>Συμπληρώστε το όνομά σας στο πάνω αριστερό πεδίο</li>
-            <li>
-              Πατήστε "Επιλογή αρχείων" για να επιλέξετε φωτογραφίες ή βίντεο
-            </li>
-            <li>Μπορείτε να κάνετε κλικ σε κάθε αρχείο για προεπισκόπηση</li>
-            <li>Γράψτε την ευχή σας στο κάτω πεδίο κειμένου</li>
-            <li>Πατήστε "Ανέβασμα" όταν είστε έτοιμοι</li>
-          </ol>
+          <div className="box">
+            <div className="line">
+              1. Συμπληρώστε το όνομά σας στο πάνω αριστερό πεδίο
+            </div>
+            <div className="line">
+              2. Πατήστε "Επιλογή αρχείων" για να επιλέξετε φωτογραφίες ή βίντεο
+            </div>
+            <div className="line">
+              3. Μπορείτε να κάνετε κλικ σε κάθε αρχείο για προεπισκόπηση
+            </div>
+            <div className="line">
+              4. Γράψτε την ευχή σας στο κάτω πεδίο κειμένου
+            </div>
+            <div className="line">5. Πατήστε "Ανέβασμα" όταν είστε έτοιμοι</div>
+          </div>
           <p className="note">
             Σημείωση: Μπορείτε να ανεβάσετε πολλαπλά αρχεία ταυτόχρονα
           </p>
@@ -208,7 +212,7 @@ export default function UploadPage({ callbackFn }) {
               placeholder="Όνομα χρήστη που ανεβάζει"
               defaultValue={username}
               readOnly={loading}
-              onKeyUp={($event) => setUsername($event.target.value)}
+              onChange={($event) => setUsername($event.target.value)}
             />
           </div>
           {/* Select files */}
@@ -245,11 +249,8 @@ export default function UploadPage({ callbackFn }) {
                     <source src={URL.createObjectURL(file)} type="video/mp4" />
                   </video>
                   <div className="video-player-play-container-upload">
-                    <div className="video-player-play-circle">
-                      <FontAwesomeIcon
-                        icon={faPlay}
-                        style={{ color: "white", fontSize: "40px" }}
-                      />
+                    <div className="video-player-play-circle-1">
+                      <FontAwesomeIcon icon={faPlay} className="play-icon" />
                     </div>
                   </div>
                 </>
@@ -290,7 +291,7 @@ export default function UploadPage({ callbackFn }) {
             placeholder="Ευχή"
             defaultValue={wish}
             readOnly={loading}
-            onKeyUp={($event) => setWish($event.target.value)}
+            onChange={($event) => setWish($event.target.value)}
           />
         </div>
 
