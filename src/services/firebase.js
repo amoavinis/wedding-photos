@@ -127,8 +127,8 @@ if (!HTMLCanvasElement.prototype.toBlob) {
 async function compressImage(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    const MAX_W = 400,
-      MAX_H = 400;
+    const MAX_W = 720,
+      MAX_H = 720;
 
     reader.onerror = () => reject(reader.error);
     reader.onload = (e) => {
