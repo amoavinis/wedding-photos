@@ -22,7 +22,7 @@ export default function Homepage() {
           <img
             key={imgIndex}
             className={`full-image ${index === imgIndex ? "active" : ""}`}
-            src={`/assets/image${imgIndex}.jpg`}
+            src={`/assets/${imgIndex}.jpg`}
           />
         ))}
       </div>
