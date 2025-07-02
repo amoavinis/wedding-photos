@@ -17,6 +17,9 @@
   width: 100%;
   position: relative;
   overflow: hidden;
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
 }
 
 img {
@@ -26,20 +29,20 @@ img {
 
 .full-image {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-position: center;
+  height: 100%; /* Full height */
+  width: auto; /* Auto width */
+  object-fit: contain; /* Maintain aspect ratio */
   opacity: 0;
   transition: opacity 1s ease-in-out;
+  left: 50%; /* Start at 50% */
+  transform: translateX(-50%); /* Pull back by half of image width */
 }
 
 @media only screen and (max-width: 767px) and (orientation: portrait) {
   /* CSS rules for mobile portrait mode */
   .full-image {
-    width: 100%;
-    height: auto;
+    width: auto;
+    height: 100%;
   }
 }
 
