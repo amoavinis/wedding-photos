@@ -62,8 +62,8 @@ export async function getUserFolders() {
   return users;
 }
 
-export async function getUserPhotos(userId, username) {
-  const q = query(collection(db, "media"), where("username", "==", username));
+export async function getUserPhotos(userId) {
+  const q = query(collection(db, "media"), where("userId", "==", userId));
   const querySnapshot = await getDocs(q);
   return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 }

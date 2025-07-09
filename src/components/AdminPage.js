@@ -4,7 +4,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlay, faFolder } from "@fortawesome/free-solid-svg-icons";
 import ViewSelectedMedia from "../components/ViewSelectedMedia";
 import UserSelector from "../components/UserSelector";
-import { fetchPhotos, getUserFolders, getUserPhotos, getUserWishes } from "../services/firebase";
+import {
+  fetchPhotos,
+  getUserFolders,
+  getUserPhotos,
+  getUserWishes,
+} from "../services/firebase";
 import "../css/AdminPage.css";
 
 export default function AdminPage() {
@@ -81,12 +86,12 @@ export default function AdminPage() {
     setFolderMedia([]);
     setFolderWishes([]);
     setOpenFolder(folder);
-    getUserPhotos(folder.id, folder.name).then((media) => {
+    getUserPhotos(folder.id).then((media) => {
       setFolderMedia(media);
     });
     getUserWishes(folder.id).then((wishes) => {
       setFolderWishes(wishes);
-    })
+    });
   }
 
   function onCloseFolder() {
