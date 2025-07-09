@@ -41,7 +41,7 @@ export async function fetchPhotos() {
   const mediaRef = await getDocs(collection(db, "media"));
 
   const media = mediaRef.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-
+  
   return media;
 }
 
@@ -62,8 +62,8 @@ export async function getUserFolders() {
   return users;
 }
 
-export async function getUserPhotos(userId) {
-  const q = query(collection(db, "media"), where("userId", "==", userId));
+export async function getUserPhotos(userId, username) {
+  const q = query(collection(db, "media"), where("username", "==", username));
   const querySnapshot = await getDocs(q);
   return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 }

@@ -52,7 +52,7 @@ export default function UploadPage({ callbackFn }) {
     let u_id = await addNewUser();
 
     await addWish(u_id);
-    await uploadFiles();
+    await uploadFiles(u_id);
     setLoading(false);
 
     setShowThankYou(true); // Show thank you modal
@@ -75,8 +75,8 @@ export default function UploadPage({ callbackFn }) {
     return userId;
   }
 
-  async function uploadFiles() {
-    await uploadMediaBatch(selectedFiles, userId, username, updateLoadingBar);
+  async function uploadFiles(u_id) {
+    await uploadMediaBatch(selectedFiles, u_id, username, updateLoadingBar);
   }
 
   async function addWish(u_id) {

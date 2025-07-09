@@ -81,7 +81,7 @@ export default function AdminPage() {
     setFolderMedia([]);
     setFolderWishes([]);
     setOpenFolder(folder);
-    getUserPhotos(folder.id).then((media) => {
+    getUserPhotos(folder.id, folder.name).then((media) => {
       setFolderMedia(media);
     });
     getUserWishes(folder.id).then((wishes) => {
