@@ -9,6 +9,7 @@ import {
   getUserFolders,
   getUserPhotos,
   getUserWishes,
+  downloadAllData,
 } from "../services/firebase";
 import "../css/AdminPage.css";
 
@@ -144,6 +145,23 @@ export default function AdminPage() {
               <span className="slider round"></span>
             </label>
             <span>Προβολή όλων</span>
+          </div>
+          <div>
+            <button
+              onClick={downloadAllData}
+              style={{
+                height: "100%",
+                backgroundColor: "blue",
+                border: "none",
+                borderRadius: 10,
+                padding: 10,
+                color: "white",
+                fontWeight: "bold",
+                cursor: "pointer"
+              }}
+            >
+              Κατέβασέ τα όλα
+            </button>
           </div>
         </div>
       )}

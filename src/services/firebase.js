@@ -16,6 +16,8 @@ import {
 } from "firebase/firestore";
 import Compressor from "compressorjs";
 import { firebaseConfig } from "../config/config";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 
 const app = initializeApp(firebaseConfig);
 
@@ -320,5 +322,65 @@ export async function downloadWithCloudFunction(mediaItem) {
     console.error("Proxy download failed:", error);
     // Fallback to direct download
     window.open(mediaItem.url, "_blank");
+  }
+}
+
+export async function downloadAllData() {
+  const db = getFirestore();
+  const zip = new JSZip();
+
+  try {
+    // 1. Get all users
+    const usersSnapshot = await getDocs(collection(db, "users"));
+    if (usersSnapshot.empty) return;
+
+    // 2. Process each user
+    for (const userDoc of usersSnapshot.docs) {
+      const userData = userDoc.data();
+      const userId = userDoc.id;
+      const username = userData.name;
+
+      // Create user folders
+      const userFolder = zip.folder(username);
+      const mediaFolder = userFolder.folder("media");
+      const messagesFolder = userFolder.folder("messages");
+
+      // Get user's data
+      const [mediaSnapshot, messagesSnapshot] = await Promise.all([
+        getDocs(query(collection(db, "media"), where("userId", "==", userId))),
+        getDocs(
+          query(collection(db, "messages"), where("userId", "==", userId))
+        ),
+      ]);
+
+      // Download media files
+      await Promise.all(
+        mediaSnapshot.docs.map(async (doc, index) => {
+          const media = doc.data();
+          if (media.downloadURL) {
+            try {
+              const response = await fetch(media.downloadURL);
+              const blob = await response.blob();
+              const fileName = media.filename;
+              mediaFolder.file(fileName, blob);
+            } catch (error) {
+              console.error(`Failed to download media for ${username}:`, error);
+            }
+          }
+        })
+      );
+
+      // Save messages as text files
+      messagesSnapshot.docs.forEach((doc, index) => {
+        const message = doc.data();
+        messagesFolder.file(`message_${index}.txt`, message.message || "");
+      });
+    }
+
+    // Generate and download the complete zip file
+    const content = await zip.generateAsync({ type: "blob" });
+    saveAs(content, "all_users_data.zip");
+  } catch (error) {
+    console.error("Error creating zip file:", error);
   }
 }
