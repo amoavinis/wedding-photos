@@ -342,8 +342,8 @@ export async function downloadAllData() {
 
       // Create user folders
       const userFolder = zip.folder(username);
-      const mediaFolder = userFolder.folder("media");
-      const messagesFolder = userFolder.folder("messages");
+      const mediaFolder = userFolder.folder("Φωτογραφίες και βίντεο");
+      const messagesFolder = userFolder.folder("Ευχές");
 
       // Get user's data
       const [mediaSnapshot, messagesSnapshot] = await Promise.all([
