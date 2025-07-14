@@ -43,7 +43,7 @@ export async function fetchPhotos() {
   const mediaRef = await getDocs(collection(db, "media"));
 
   const media = mediaRef.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-  
+
   return media;
 }
 
@@ -359,7 +359,14 @@ export async function downloadAllData() {
           const media = doc.data();
           if (media.downloadURL) {
             try {
-              const response = await fetch(media.downloadURL);
+              const encodedPath = encodeURIComponent(media.filename);
+              const proxyUrl = `https://us-central1-wedding-photos-36c1e.cloudfunctions.net/downloadFile?filePath=${encodedPath}`;
+
+              const response = await fetch(proxyUrl);
+              if (!response.ok)
+                throw new Error(
+                  `Download failed with status ${response.status}`
+                );
               const blob = await response.blob();
               const fileName = media.filename;
               mediaFolder.file(fileName, blob);

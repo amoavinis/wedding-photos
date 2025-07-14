@@ -26,6 +26,7 @@ export default function AdminPage() {
   const hasFetchedFolders = useRef(false);
   const [folderMedia, setFolderMedia] = useState([]);
   const [folderWishes, setFolderWishes] = useState([]);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
     const run = async () => {
@@ -117,6 +118,12 @@ export default function AdminPage() {
     return folderWishes?.length <= 1;
   }
 
+  async function bulkDownload() {
+    setIsDownloading(true);
+    await downloadAllData();
+    setIsDownloading(false);
+  }
+
   return (
     <>
       {/* Filter */}
@@ -148,19 +155,11 @@ export default function AdminPage() {
           </div>
           <div>
             <button
-              onClick={downloadAllData}
-              style={{
-                height: "100%",
-                backgroundColor: "blue",
-                border: "none",
-                borderRadius: 10,
-                padding: 10,
-                color: "white",
-                fontWeight: "bold",
-                cursor: "pointer"
-              }}
+              onClick={bulkDownload}
+              disabled={isDownloading}
+              className="bulk-download-button"
             >
-              Κατέβασέ τα όλα
+              {isDownloading ? "Κατέβασμα σε εξέλιξη..." : "Κατέβασέ τα όλα"}
             </button>
           </div>
         </div>
