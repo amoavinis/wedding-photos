@@ -386,7 +386,7 @@ export async function downloadAllData() {
 
     // Generate and download the complete zip file
     const content = await zip.generateAsync({ type: "blob" });
-    saveAs(content, "all_users_data.zip");
+    saveAs(content, "Wedding Photos.zip");
   } catch (error) {
     console.error("Error creating zip file:", error);
   }
